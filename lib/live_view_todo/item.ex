@@ -7,7 +7,7 @@ defmodule LiveViewTodo.Item do
 
   schema "items" do
     field :person_id, :integer
-    field :status, :integer
+    field :status, :integer, default: 0
     field :text, :string
 
     timestamps()

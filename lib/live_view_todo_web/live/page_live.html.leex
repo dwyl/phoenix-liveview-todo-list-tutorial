@@ -20,7 +20,7 @@
       <%= for item <- @items do %>
       <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
         <div class="view">
-          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %>>
+          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
           <label><%= item.text %></label>
           <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
         </div>

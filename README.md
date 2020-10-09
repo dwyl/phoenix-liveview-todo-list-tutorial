@@ -713,8 +713,40 @@ we can move on to the _fun_ part, building the Todo App in `LiveView`!
 The first event we want to handle in our `LiveView` App is "create";
 the act of creating a new Todo List `item`.
 
-Open the `lib/live_view_todo_web/live/page_live.ex` file
-and add the following
+Let's start by adding a _test_ for creating an item.
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test:
+
+```elixir
+test "connect and create a todo item", %{conn: conn} do
+  {:ok, view, _html} = live(conn, "/")
+  assert render_submit(view, :create, %{"text" => "Learn Elixir"}) =~ "Learn Elixir"
+end
+```
+
+Docs for this LiveView testing using `render_submit/1`:
+https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render_submit/1
+
+<br />
+
+If you attempt to run this test:
+
+```sh
+mix test test/live_view_todo_web/live/page_live_test.exs
+```
+
+you will see it _fail_:
+
+```sh
+1) test connect and create a todo item (LiveViewTodoWeb.PageLiveTest)
+    test/live_view_todo_web/live/page_live_test.exs:12
+    ** (EXIT from #PID<0.441.0>) an exception was raised:
+
+        ** (FunctionClauseError) no function clause matching in LiveViewTodoWeb.PageLive.handle_event/3
+```
+
+In order to make the test _pass_ we will need to add two blocks of code.
 
 Open the `lib/live_view_todo_web/live/page_live.html.leex` file
 and locate the line in the `<header>` section:
@@ -744,7 +776,7 @@ which tells `LiveView` which event to emit when the form is submitted.
 
 Once you've saved the `page_live.html.leex` file,
 open the `lib/live_view_todo_web/live/page_live.ex` file
-and add the following code to it:
+and add the following handler code to it:
 
 ```elixir
 @topic "live"
@@ -771,7 +803,7 @@ Let's fix that next.
 
 <br />
 
-#### 4 _Show_ the Created Todo `Items`
+### 5. _Show_ the Created Todo `Items`
 
 In order to _show_ the Todo `items` we are creating,
 we need to:
@@ -817,25 +849,14 @@ replace the code:
 
 With the following:
 
-```html
+```elixir
 <ul class="todo-list">
   <%= for item <- @items do %>
-  <li data-id="<%= item.id %>" class="<%= completed?(item) %>">
+  <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
     <div class="view">
-      <input
-        class="toggle"
-        type="checkbox"
-        phx-value-id="<%= item.id %>"
-        phx-click="toggle"
-        <%="checked?(item)"
-        %
-      />>
+      <input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
       <label><%= item.text %></label>
-      <button
-        class="destroy"
-        phx-click="delete"
-        phx-value-id="<%= item.id %>"
-      ></button>
+      <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
     </div>
   </li>
   <% end %>
@@ -846,7 +867,7 @@ You will notice that there are two functions
 `completed?/1` and `checked?/1`
 invoked in that block of template code.
 
-We need to define them in
+We need to define the functions in
 `/lib/live_view_todo_web/live/page_live.ex`:
 
 ```elixir
@@ -860,7 +881,7 @@ end
 ```
 
 These are convenience functions.
-We could have put this code directly in the template,
+We _could_ have embedded this code directly in the template,
 however we prefer to _minimize_ logic in the templates
 so that they are easier to read/maintain.
 
@@ -871,7 +892,155 @@ we can now create and _see_ our created Todo `item`:
 
 <br />
 
-### 5. Toggle the State of Todo Items
+### 6. Toggle the State of Todo Items
+
+The next piece of functionality we want in a Todo List
+is the ability to **`toggle`** the completion from "todo" to "done".
+
+In our `item` `schema` (created in step 3),
+we defined `status` as an `integer`.
+The `default` value for `item.status`
+when a **new `item`** is inserted is `0`.
+
+<br />
+
+Let's create a (_failing_) test for **toggling** items.
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test to it:
+
+```elixir
+test "toggle an item", %{conn: conn} do
+  {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+  assert item.status == 0
+
+  {:ok, view, _html} = live(conn, "/")
+  assert render_click(view, :toggle, %{"id" => item.id, "value" => 1}) =~ "completed"
+
+  updated_item = Item.get_item!(item.id)
+  assert updated_item.status == 1
+end
+```
+
+You may have noticed that in the template,
+we included an `<input>` with the `type="checkbox"`
+
+```elixir
+<input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+```
+
+This line of code already has everything we need to enable the **`toggle`** feature
+on the front-end, we just need to create a handler in `page_live.ex`
+to handle the event.
+
+Open the
+`/lib/live_view_todo_web/live/page_live.ex`
+file and add the following code to it:
+
+```elixir
+@impl true
+def handle_event("toggle", data, socket) do
+  status = if Map.has_key?(data, "value"), do: 1, else: 0
+  item = Item.get_item!(Map.get(data, "id"))
+  Item.update_item(item, %{id: item.id, status: status})
+  socket = assign(socket, items: Item.list_items(), active: %Item{})
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  {:noreply, socket}
+end
+```
+
+Once you've saved the file,
+the test will pass.
+
+<br />
+
+### 7. "Delete" a Todo `item`
+
+Rather than _permanently_ deleting items which destroys history/accountability,
+we prefer to
+["_soft deletion_"](https://en.wiktionary.org/wiki/soft_deletion)
+which allows people to "undo" the operation.
+
+Open
+`test/live_view_todo/item_test.exs`
+and add the following test to it:
+
+```elixir
+test "delete_item/1 soft-deltes an item" do
+  item = item_fixture()
+  assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
+  assert deleted_item.status == 2
+end
+```
+
+If you attempt to run the test,
+you will see it _fail_:
+
+```sh
+1) test items delete_item/1 soft-deltes an item (LiveViewTodo.ItemTest)
+    test/live_view_todo/item_test.exs:50
+    ** (UndefinedFunctionError) function LiveViewTodo.Item.delete_item/1 is undefined or private
+    code: assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
+    stacktrace:
+      (live_view_todo 0.1.0) LiveViewTodo.Item.delete_item(157)
+      test/live_view_todo/item_test.exs:52: (test)
+```
+
+To make the test _pass_,
+open your `lib/live_view_todo/item.ex` file
+and add the following function definition:
+
+```elixir
+def delete_item(id) do
+  get_item!(id)
+  |> Item.changeset(%{status: 2})
+  |> Repo.update()
+end
+```
+
+Having defined the `delete/1` function
+as updating the `item.status` to **`2`**,
+we can now create a test for a `LiveView` handler
+that invokes this function.
+
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test to it:
+
+```elixir
+test "delete an item", %{conn: conn} do
+  {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+  assert item.status == 0
+
+  {:ok, view, _html} = live(conn, "/")
+  assert render_click(view, :delete, %{"id" => item.id}) =~ "Todo"
+
+  updated_item = Item.get_item!(item.id)
+  assert updated_item.status == 2
+end
+```
+
+To make this test pass,
+we need to add the following `handle_event/3` handler to `page_live.ex`:
+
+```elixir
+@impl true
+def handle_event("delete", data, socket) do
+  Item.delete_item(Map.get(data, "id"))
+  socket = assign(socket, items: Item.list_items(), active: %Item{})
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  {:noreply, socket}
+end
+```
+
+This point we've written a bunch of code,
+let's see it in _action_ in the front-end.
+
+Run the Phoenix Sever: `mix phx.server`
+and visit
+[http://localhost:4000](http://localhost:4000)
+in your web browser.
+You should see:
 
 ```space
 

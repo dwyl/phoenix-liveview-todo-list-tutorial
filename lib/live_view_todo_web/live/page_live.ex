@@ -30,13 +30,13 @@ defmodule LiveViewTodoWeb.PageLive do
 
   @impl true
   def handle_event("delete", data, socket) do
-    # IO.inspect(data)
     Item.delete_item(Map.get(data, "id"))
     socket = assign(socket, items: Item.list_items(), active: %Item{})
     LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
+  @impl true
   def handle_info(data, socket) do
     {:noreply, assign(socket, items: data.payload.items)}
   end
@@ -49,17 +49,4 @@ defmodule LiveViewTodoWeb.PageLive do
     if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
   end
 
-  # @impl true
-  # def handle_event("search", %{"q" => query}, socket) do
-  #   case search(query) do
-  #     %{^query => vsn} ->
-  #       {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-  #     _ ->
-  #       {:noreply,
-  #        socket
-  #        |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-  #        |> assign(results: %{}, query: query)}
-  #   end
-  # end
 end

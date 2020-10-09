@@ -1046,6 +1046,39 @@ You should see:
 
 <br />
 
+# `@Todo: Finish the Tutorial` (`#HelpWanted`)
+
+This tutorial already implements the _basics_.
+We need _your_ help extending it to add these last few features.
+Thankfully we have already implemented this before
+so you will have a head-start.
+
+<br />
+
+### 9. Editing Todo `item.text`
+
+We need to borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
+but make it `LiveView` friendly.
+
+<br />
+
+### 9. Footer Navigation
+
+Borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#9-footer-navigation
+
+<br />
+
+### 10. Clear Completed
+
+Borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
+
+<br />
+
+### 11. Deploy to Heroku
+
 <!--
 Bonus Level Adding Timers with Typescript
 https://benbarber.co.uk/blog/using-typescript-in-a-phoenix-project

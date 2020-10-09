@@ -24,10 +24,14 @@ and _understand_ how to build real-world apps in **20 minutes** or _less_!
 
 ## Why? 🤷
 
-Phoenix LiveView offers a **_significantly simpler_** way
-of building responsive realtime web applications
-that _look_ like single a page app
-and _feel_ like a **native** (_no lag or refresh_) experience.
+`Phoenix` is already an awesome web framework
+that helps teams build reliable Apps & APIs fast.
+`LiveView` takes the simplicity of building realtime features
+to the next level of elegance and simplicity.
+
+`LiveView` lets us create a single a page app
+with a **native** (_no lag or refresh_) experience
+without writing a line of `JavaScript`.
 
 ## What? 💭
 
@@ -332,6 +336,66 @@ you should see the following:
 
 Now that we have the layout looking like we want it,
 we can move onto the fun part of making it _work_.
+But _first_ let's fix the failing test.
+
+If you run the test suite with the command:
+
+```sh
+mix test
+```
+
+You will see a failing test:
+
+```sh
+  1) test disconnected and connected render (LiveViewTodoWeb.PageLiveTest)
+     test/live_view_todo_web/live/page_live_test.exs:6
+     Assertion with =~ failed
+     code:  assert disconnected_html =~ "Welcome to Phoenix!"
+     left:  "<html lang=\"en\"><head><meta charset=\"utf-8\"/><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><meta charset=\"UTF-8\" content=\"B28oGEQ9ci0VBhBWVV4aJFw2Oys_BmMEJ0PV2gKAxJjo7nbpeCytKWU4\" csrf-param=\"_csrf_token\" method-param=\"_method\" name=\"csrf-token\"/><title data-suffix=\" · Phoenix Framework\">LiveViewTodo · Phoenix Framework</title></p><section class=\"todoapp\"><header class=\"header\">
+     <h1>todos</h1><input class=\"new-todo\" placeholder=\"What needs to be done?\" autofocus=\"\"/></header><section class=\"main\" style=\"display: block;\"><input id=\"toggle-all\" class=\"toggle-all\" type=\"checkbox\"/><label for=\"toggle-all\">Mark all as complete</label><ul class=\"todo-list\"><li data-id=\"1590167947253\" class=\"\"><div class=\"view\"><input class=\"toggle\" type=\"checkbox\"/><label>Learn how to build a Realtime Todo list in Phoenix LiveView</label><button class=\"destroy\">
+     </button></div></li><li data-id=\"1590167956628\" class=\"completed\"><div class=\"view\"><input class=\"toggle\" type=\"checkbox\"/><label>Completed item</label><button class=\"destroy\"></button></div></li></ul></section><footer class=\"footer\" style=\"display: block;\"><span class=\"todo-count\"><strong>1</strong> item left</span><ul class=\"filters\"><li><a href=\"#/\" class=\"selected\">All</a></li><li><a href=\"#/active\">Active</a></li><li><a href=\"#/completed\">Completed</a></li></ul><button class=\"clear-completed\" style=\"display: block;\">Clear completed</button></footer></section></main></div></body></html>"
+     right: "Welcome to Phoenix!"
+     stacktrace:
+       test/live_view_todo_web/live/page_live_test.exs:8: (test)
+
+
+Finished in 0.2 seconds
+3 tests, 1 failure
+
+```
+
+Open the `test/live_view_todo_web/live/page_live_test.exs` file
+and update the test assertions from:
+
+```elixir
+assert disconnected_html =~ "Welcome to Phoenix!"
+assert render(page_live) =~ "Welcome to Phoenix!"
+```
+
+To:
+
+```elixir
+assert disconnected_html =~ "Todos"
+assert render(page_live) =~ "Todos"
+```
+
+Now when you re-run the tests:
+
+```sh
+mix test
+```
+
+You should see:
+
+```sh
+Compiling 1 file (.ex)
+...
+
+Finished in 0.2 seconds
+3 tests, 0 failures
+```
+
+Everything passing again, lets get back to building!
 
 <br />
 
@@ -344,8 +408,33 @@ In your terminal run the following generator command:
 mix phx.gen.schema Item items text:string person_id:integer status:integer
 ```
 
+That will create two new files:
+
+- `lib/live_view_todo/item.ex` - the schema
+- `priv/repo/migrations/20201227070700_create_items.exs` - migration file (creates database table)
+
 Reference:
 https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html
+
+Execute the migration file by running the following command:
+
+```sh
+mix ecto.migrate
+```
+
+You will see output similar to the following:
+
+```sh
+13:44:03.406 [info]  == Migrated 20170606070700 in 0.0s
+```
+
+Now that the schema has been created
+we can write some code
+to make the todo list functionality work.
+
+<br />
+
+### 4. Create the Functions
 
 ```space
 

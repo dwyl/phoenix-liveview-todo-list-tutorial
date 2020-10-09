@@ -1,30 +1,48 @@
 <section class="todoapp">
   <header class="header">
   	<h1>Todos</h1>
-  	<input class="new-todo" placeholder="What needs to be done?" autofocus="">
+    <form phx-submit="create" id="form">
+      <input
+        id="new_todo"
+        class="new-todo"
+        type="text"
+        name="text"
+        placeholder="What needs to be done?"
+        autofocus=""
+        required="required"
+      />
+    </form>
   </header>
   <section class="main" style="display: block;">
   	<input id="toggle-all" class="toggle-all" type="checkbox">
   	<label for="toggle-all">Mark all as complete</label>
   	<ul class="todo-list">
-      <li data-id="1590167947253" class="">
+      <%= for item <- @items do %>
+      <li data-id="<%= item.id %>"
+        class='<%= if not is_nil(item.status) and item.status > 0, do: "completed", else: "" %>'>
         <div class="view">
-          <input class="toggle" type="checkbox">
-          <label>Learn how to build a Realtime Todo list in Phoenix LiveView</label>
-          <button class="destroy"></button>
+          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle"
+            <%= if not is_nil(item.status) and item.status > 0, do: "checked", else: "" %>
+          >
+          <label><%= item.text %></label>
+          <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
         </div>
       </li>
-      <li data-id="1590167956628" class="completed">
-        <div class="view">
-          <input class="toggle" type="checkbox">
-          <label>Completed item</label>
-          <button class="destroy"></button>
-        </div>
-      </li>
+      <% end %>
     </ul>
   </section>
+  <%= if Enum.count(@items) > 0 do %>
   <footer class="footer" style="display: block;">
-  	<span class="todo-count"><strong>1</strong> item left</span>
+  	<span class="todo-count">
+      <strong>
+        <%= Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) %>
+      </strong>
+      <%= if Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) == 1 do %>
+        item
+      <% else %>
+        items
+      <% end %>
+      left</span>
   	<ul class="filters">
   		<li>
   			<a href="#/" class="selected">All</a>
@@ -38,4 +56,5 @@
   	</ul>
   	<button class="clear-completed" style="display: block;">Clear completed</button>
   </footer>
+  <% end %>
 </section>

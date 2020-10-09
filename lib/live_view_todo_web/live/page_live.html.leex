@@ -18,12 +18,9 @@
   	<label for="toggle-all">Mark all as complete</label>
   	<ul class="todo-list">
       <%= for item <- @items do %>
-      <li data-id="<%= item.id %>"
-        class='<%= if not is_nil(item.status) and item.status > 0, do: "completed", else: "" %>'>
+      <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
         <div class="view">
-          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle"
-            <%= if not is_nil(item.status) and item.status > 0, do: "checked", else: "" %>
-          >
+          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %>>
           <label><%= item.text %></label>
           <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
         </div>

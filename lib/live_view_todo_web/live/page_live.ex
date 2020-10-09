@@ -41,7 +41,13 @@ defmodule LiveViewTodoWeb.PageLive do
     {:noreply, assign(socket, items: data.payload.items)}
   end
 
+  def checked?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+  end
 
+  def completed?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
+  end
 
   # @impl true
   # def handle_event("search", %{"q" => query}, socket) do

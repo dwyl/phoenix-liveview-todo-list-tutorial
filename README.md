@@ -764,6 +764,115 @@ defined as a
 (_like a Global Constant_),
 which we will use to both subscribe to and broadcast on.
 
+With that in place you can now create items in the browser!
+Run the app: `mix phx.sever` and you should be able to add items.
+_However_ they will not _appear_ in the UI.
+Let's fix that next.
+
+<br />
+
+#### 4 _Show_ the Created Todo `Items`
+
+In order to _show_ the Todo `items` we are creating,
+we need to:
+
+1. Lookup and assign the `items` in the `mount/3` function
+2. Loop through and render the `item` in the `page_live.html.leex` template
+
+Let's start by updating the `mount/3` function in
+`/lib/live_view_todo_web/live/page_live.ex`:
+
+```elixir
+  def mount(_params, _session, socket) do
+    LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
+    {:ok, assign(socket, items: Item.list_items())}
+  end
+```
+
+The `@topic` was defined above in Step 4.
+You may need to hoist it to the top of the file below the `alias`.
+
+Then in the
+`lib/live_view_todo_web/live/page_live.html.leex` file
+replace the code:
+
+```html
+<ul class="todo-list">
+  <li data-id="1590167947253" class="">
+    <div class="view">
+      <input class="toggle" type="checkbox" />
+      <label>Learn how to build a Todo list in Phoenix</label>
+      <button class="destroy"></button>
+    </div>
+  </li>
+  <li data-id="1590167956628" class="completed">
+    <div class="view">
+      <input class="toggle" type="checkbox" />
+      <label>Completed item</label>
+      <button class="destroy"></button>
+    </div>
+  </li>
+</ul>
+```
+
+With the following:
+
+```html
+<ul class="todo-list">
+  <%= for item <- @items do %>
+  <li data-id="<%= item.id %>" class="<%= completed?(item) %>">
+    <div class="view">
+      <input
+        class="toggle"
+        type="checkbox"
+        phx-value-id="<%= item.id %>"
+        phx-click="toggle"
+        <%="checked?(item)"
+        %
+      />>
+      <label><%= item.text %></label>
+      <button
+        class="destroy"
+        phx-click="delete"
+        phx-value-id="<%= item.id %>"
+      ></button>
+    </div>
+  </li>
+  <% end %>
+</ul>
+```
+
+You will notice that there are two functions
+`completed?/1` and `checked?/1`
+invoked in that block of template code.
+
+We need to define them in
+`/lib/live_view_todo_web/live/page_live.ex`:
+
+```elixir
+def checked?(item) do
+  if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+end
+
+def completed?(item) do
+  if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
+end
+```
+
+These are convenience functions.
+We could have put this code directly in the template,
+however we prefer to _minimize_ logic in the templates
+so that they are easier to read/maintain.
+
+With that template update and helper functions saved,
+we can now create and _see_ our created Todo `item`:
+
+![todo-items-create](https://user-images.githubusercontent.com/194400/96370930-718fab80-1157-11eb-9e8a-24b4548fcf1c.png)
+
+<br />
+
+### 5. Toggle the State of Todo Items
+
 ```space
 
 

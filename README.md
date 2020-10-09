@@ -1055,7 +1055,7 @@ so you will have a head-start.
 
 <br />
 
-### 9. Editing Todo `item.text`
+### 8. Editing Todo `item.text`
 
 We need to borrow from:
 https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
@@ -1079,7 +1079,7 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 
 <hr />
 
-### 11. Deploy to Heroku
+### 11. Deploy to Heroku
 
 Deployment is beyond the scope of this tutorial.
 But we created a _separate_
@@ -1092,7 +1092,7 @@ to view/use your app in any Web/Mobile Browser.
 e.g:
 https://liveview-todo.herokuapp.com
 
-#### `tl;dr`
+#### `tl;dr`
 
 - [x] Add the build packs
 

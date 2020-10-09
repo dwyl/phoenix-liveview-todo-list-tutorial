@@ -322,7 +322,7 @@ because we don't want the Phoenix (Milligram) styles
 _conflicting_ with the TodoMVC ones.
 
 At the end of this step,
-if you run your Phoenix App
+if you run your Phoenix App with
 `mix phx.server`
 and visit:
 [http://localhost:4000](http://localhost:4000)
@@ -340,8 +340,8 @@ we can move onto the fun part of making it _work_.
 In order to _store_ the todo list `items` we need a schema.
 In your terminal run the following generator command:
 
-```
-mix phx.gen.schema Item items text:string person_id:integer
+```sh
+mix phx.gen.schema Item items text:string person_id:integer status:integer
 ```
 
 Reference:

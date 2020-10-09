@@ -1077,7 +1077,33 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 
 <br />
 
+<hr />
+
 ### 11. Deploy to Heroku
+
+Deployment is beyond the scope of this tutorial.
+But we created a _separate_
+guide for it:
+[elixir-phoenix-app-deployment.md](https://github.com/dwyl/learn-heroku/blob/master/elixir-phoenix-app-deployment.md)
+
+Once you have _deployed_ you will will be able
+to view/use your app in any Web/Mobile Browser.
+
+e.g:
+https://liveview-todo.herokuapp.com
+
+#### `tl;dr`
+
+- [x] Add the build packs
+
+Run the commands:
+
+```
+heroku git:remote -a liveview-todo
+heroku run "POOL_SIZE=2 mix ecto.migrate"
+```
+
+<br />
 
 <!--
 Bonus Level Adding Timers with Typescript

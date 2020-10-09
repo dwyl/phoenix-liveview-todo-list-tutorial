@@ -196,3 +196,10 @@ in your web browser.
 > [`#25ba4e7`](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/commit/25ba4e75cee1dd038fff71aa1ba4b17330d692c9)
 
 <br />
+
+### Step 2. Create the Todo List `items` Schema
+
+In order to _store_ the todo list `items` we need a schema.
+
+Reference:
+https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html

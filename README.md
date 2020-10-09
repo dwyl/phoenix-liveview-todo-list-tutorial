@@ -9,13 +9,15 @@
 [![HitCount](http://hits.dwyl.io/dwyl/phoenix-liveview-counter-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-counter-tutorial)
 
 **Build your _second_ App** using **Phoenix LiveView** <br />
-and _understand_ all the basic concepts in **20 minutes** or _less_!
+and _understand_ how to build real-world apps in **20 minutes** or _less_!
 
+<!-- TODO: add image once app finished
 <div>
   <a href="https://live-view-counter.herokuapp.com/">
     <img src="https://user-images.githubusercontent.com/194400/76150696-2e3f6b80-60a5-11ea-8d65-1999a70bb40a.gif">
   </a>
 </div>
+-->
 
 </div>
 <br />
@@ -190,10 +192,7 @@ in your web browser.
 
 ![welcome-to-phoenix-liveview](https://user-images.githubusercontent.com/194400/95674046-99a26c00-0ba5-11eb-94e8-eec6840035a0.png)
 
-😱 If you are having problems with the server hanging, try
-[this](#problems-with-dependencies)
-
 > 🏁 Snapshot of code at the end of Step 1:
-> [`#c48488`](https://github.com/dwyl/phoenix-liveview-counter-tutorial/tree/c4848853beb2df3327663270d1018a128bbcf0fa)
+> [`#25ba4e7`](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/commit/25ba4e75cee1dd038fff71aa1ba4b17330d692c9)
 
 <br />

@@ -7,7 +7,6 @@ env:
   - MIX_ENV=test
 script:
   - mix deps.get
-  - mix compile
   - mix coveralls.json
 after_success:
   - bash <(curl -s https://codecov.io/bash)

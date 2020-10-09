@@ -1042,34 +1042,9 @@ and visit
 in your web browser.
 You should see:
 
-```space
+![liveview-todo-delete](https://user-images.githubusercontent.com/194400/96378407-9b5ec780-1183-11eb-971d-94988352a0cf.gif)
 
-
-
-
-```
-
-<!--
-Keeping this for later:
-
-```html
-<form phx-change="suggest" phx-submit="search">
-  <input
-    type="text"
-    name="q"
-    value="<%= @query %>"
-    placeholder="Live dependency search"
-    list="results"
-    autocomplete="off"
-  />
-  <datalist id="results">
-    <%= for {app, _vsn} <- @results do %>
-    <option value="<%= app %>"><%= app %></option>
-    <% end %>
-  </datalist>
-  <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-</form>
-```
+<br />
 
 <!--
 Bonus Level Adding Timers with Typescript

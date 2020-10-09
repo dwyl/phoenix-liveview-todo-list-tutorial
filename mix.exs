@@ -10,7 +10,14 @@ defmodule LiveViewTodo.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        c: :test,
+        coveralls: :test,
+        "coveralls.json": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -46,7 +53,10 @@ defmodule LiveViewTodo.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+
+      # track test coverage:  https://github.com/parroty/excoveralls
+      {:excoveralls, "~> 0.13.2", only: [:test, :dev]}
     ]
   end
 
@@ -61,7 +71,9 @@ defmodule LiveViewTodo.MixProject do
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      c: ["coveralls.html"],
+      s: ["phx.server"]
     ]
   end
 end

@@ -1,0 +1,8 @@
+{
+  "skip_files": [
+    "test/",
+    "lib/live_view_todo/application.ex",
+    "lib/live_view_todo_web.ex",
+    "lib/live_view_todo_web/views/error_helpers.ex"
+  ]
+}

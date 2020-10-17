@@ -32,12 +32,12 @@ config :live_view_todo, LiveViewTodoWeb.Endpoint,
   check_origin: ["https://todolist.gigalixirapp.com", "//todolist.gigalixirapp.com", "//gigalixirapp.com"]
 
 
-# ## Using releases (Elixir v1.9+)
+## Using releases (Elixir v1.9+)
 #
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start each relevant endpoint:
-#
-#     config :live_view_todo, LiveViewTodoWeb.Endpoint, server: true
+# 
+    config :live_view_todo, LiveViewTodoWeb.Endpoint, server: true
 #
 # Then you can assemble a release by calling `mix release`.
 # See `mix help release` for more information.

@@ -9,7 +9,7 @@ config :live_view_todo, LiveViewTodo.Repo,
   username: "postgres",
   password: "postgres",
   database: "live_view_todo_test#{System.get_env("MIX_TEST_PARTITION")}",
-  hostname: "localhost",
+  hostname: "127.0.0.1",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,

@@ -12,7 +12,7 @@ config :live_view_todo,
 
 # Configures the endpoint
 config :live_view_todo, LiveViewTodoWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: "127.0.0.1"],
   secret_key_base: "mve+k9ilc/5gZAQOxZ2kc5VRJX3JwxXoyLyteev/xpDLavBZ5XP9JqehJs96PGwB",
   render_errors: [view: LiveViewTodoWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: LiveViewTodo.PubSub,

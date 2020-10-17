@@ -28,7 +28,9 @@ config :live_view_todo, LiveViewTodoWeb.Endpoint,
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
-  secret_key_base: secret_key_base
+  secret_key_base: secret_key_base,
+  check_origin: ["https://todolist.gigalixirapp.com", "//todolist.gigalixirapp.com", "//gigalixirapp.com"]
+
 
 # ## Using releases (Elixir v1.9+)
 #

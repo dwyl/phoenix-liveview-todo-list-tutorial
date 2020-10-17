@@ -29,6 +29,7 @@ config :live_view_todo, LiveViewTodoWeb.Endpoint,
     transport_options: [socket_opts: [:inet6]]
   ],
   secret_key_base: secret_key_base
+  check_origin: false,
 
 # ## Using releases (Elixir v1.9+)
 #

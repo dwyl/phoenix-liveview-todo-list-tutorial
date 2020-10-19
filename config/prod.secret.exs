@@ -27,5 +27,6 @@ config :live_view_todo, LiveViewTodoWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
   url: [scheme: "http", host: "//todolist.gigalixirapp.com", port: 80],
+  check_origin: false,
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: secret_key_base

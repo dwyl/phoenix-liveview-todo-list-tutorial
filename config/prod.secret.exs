@@ -24,20 +24,9 @@ secret_key_base =
     """
 
 config :live_view_todo, LiveViewTodoWeb.Endpoint,
-  http: [
-    port: String.to_integer(System.get_env("PORT") || "4000"),
-    transport_options: [socket_opts: [:inet6]]
-  ],
-  secret_key_base: secret_key_base,
-  check_origin: ["https://todolist.gigalixirapp.com", "//todolist.gigalixirapp.com", "//gigalixirapp.com"]
-
-
-## Using releases (Elixir v1.9+)
-#
-# If you are doing OTP releases, you need to instruct Phoenix
-# to start each relevant endpoint:
-# 
-    config :live_view_todo, LiveViewTodoWeb.Endpoint, server: true
-#
-# Then you can assemble a release by calling `mix release`.
-# See `mix help release` for more information.
+  load_from_system_env: true,
+  http: [port: {:system, "PORT"}],
+  url: [scheme: "https", host: "//todolist.gigalixirapp.com", port: 443],
+  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  secret_key_base: secret_key_base

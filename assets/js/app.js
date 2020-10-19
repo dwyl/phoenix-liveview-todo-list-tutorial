@@ -20,6 +20,7 @@ import {LiveSocket} from "phoenix_live_view"
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
 
+
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", info => NProgress.start())
 window.addEventListener("phx:page-loading-stop", info => NProgress.done())
@@ -33,3 +34,8 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Reset todo list form input ... this is the simplest way we found ¯\_(ツ)_/¯
+document.getElementById('form').addEventListener('submit', function() {
+  // the setTimeout is required to let phx-submit do it's thing first ...
+  setTimeout(() => { document.getElementById('new_todo').value = ""; }, 1)
+});

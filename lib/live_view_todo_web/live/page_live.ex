@@ -1,39 +1,52 @@
 defmodule LiveViewTodoWeb.PageLive do
   use LiveViewTodoWeb, :live_view
+  alias LiveViewTodo.Item
+
+  @topic "live"
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
+    {:ok, assign(socket, items: Item.list_items())}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("create", %{"text" => text}, socket) do
+    Item.create_item(%{text: text})
+    socket = assign(socket, items: Item.list_items(), active: %Item{})
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+  def handle_event("toggle", data, socket) do
+    status = if Map.has_key?(data, "value"), do: 1, else: 0
+    item = Item.get_item!(Map.get(data, "id"))
+    Item.update_item(item, %{id: item.id, status: status})
+    socket = assign(socket, items: Item.list_items(), active: %Item{})
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
   end
 
-  defp search(query) do
-    if not LiveViewTodoWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
-
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+  @impl true
+  def handle_event("delete", data, socket) do
+    Item.delete_item(Map.get(data, "id"))
+    socket = assign(socket, items: Item.list_items(), active: %Item{})
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
   end
+
+  @impl true
+  def handle_info(data, socket) do
+    {:noreply, assign(socket, items: data.payload.items)}
+  end
+
+  def checked?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+  end
+
+  def completed?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
+  end
+
 end

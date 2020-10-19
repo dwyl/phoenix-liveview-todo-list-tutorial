@@ -2,10 +2,10 @@
 
 # Phoenix LiveView Todo List Tutorial
 
-[![Build Status](https://img.shields.io/travis/dwyl/phoenix-liveview-counter-tutorial/master.svg?style=flat-square)](https://travis-ci.org/dwyl/phoenix-liveview-counter-tutorial)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-counter-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-counter-tutorial?branch=master)
+[![Build Status](https://img.shields.io/travis/com/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](https://travis-ci.com/dwyl/phoenix-liveview-todo-list-tutorial)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
 [![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-counter-tutorial/issues)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)
 [![HitCount](http://hits.dwyl.io/dwyl/phoenix-liveview-counter-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-counter-tutorial)
 
 **Build your _second_ App** using **Phoenix LiveView** <br />
@@ -25,13 +25,13 @@ and _understand_ how to build real-world apps in **20 minutes** or _less_!
 ## Why? 🤷
 
 `Phoenix` is already an awesome web framework
-that helps teams build reliable Apps & APIs fast.
+that helps teams build reliable Apps & APIs fast. <br />
 `LiveView` takes the simplicity of building realtime features
 to the next level of elegance and simplicity.
 
-`LiveView` lets us create a single a page app
+`LiveView` lets us create a slick single a page app
 with a **native** (_no lag or refresh_) experience
-without writing a line of `JavaScript`.
+without writing `JavaScript`.
 
 ## What? 💭
 
@@ -432,37 +432,678 @@ Now that the schema has been created
 we can write some code
 to make the todo list functionality work.
 
+#### 3.1 Add Aliases to `item.ex`
+
+Before we create any new functions, let's open the
+`lib/live_view_todo/item.ex`
+file and make a couple of changes:
+
+```elixir
+defmodule LiveViewTodo.Item do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(item, attrs) do
+    item
+    |> cast(attrs, [:text, :person_id, :status])
+    |> validate_required([:text, :person_id, :status])
+  end
+end
+```
+
+First add the line `alias LiveViewTodo.Repo`
+below the `import Ecto.Changeset` statement;
+we need this alias so that we can make database queries.
+
+Next add the line `alias __MODULE__` below the `alias` we just added;
+this just means "alias the Struct contained in this file so we can reference it".
+see: https://stackoverflow.com/questions/39854281/access-struct-inside-module/47501059
+
+Finally remove the `:person_id, :status`
+from the List of fields in `validate_required`.
+We don't want `person_id` to be required for now
+as we don't yet have authentication setup for the App.
+
+Your file should now look like this:
+
+```elixir
+defmodule LiveViewTodo.Item do
+  use Ecto.Schema
+  import Ecto.Changeset
+  alias LiveViewTodo.Repo
+  alias __MODULE__
+
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(item, attrs) do
+    item
+    |> cast(attrs, [:text, :person_id, :status])
+    |> validate_required([:text])
+  end
+end
+```
+
+With those changes made, we can proceed to creating our functions.
+
+#### 3.2 Create Todo Item CRUD Tests
+
+The `phx.gen.schema` does not automatically create any
+["CRUD"](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+functions
+to `Create` an `item` or `Read` `items` in/from the database
+or tests for those functions,
+so we need to create them ourselves now.
+
+Create a new directory with the path:
+`test/live_view_todo`
+and in that new directory,
+create a file:
+`test/live_view_todo/item_test.exs`
+
+Next _open_ the newly created file
+`test/live_view_todo/item_test.exs`
+and add the following test code to it:
+
+```elixir
+defmodule LiveViewTodo.ItemTest do
+  use LiveViewTodo.DataCase
+  alias LiveViewTodo.Item
+
+  describe "items" do
+    @valid_attrs %{text: "some text", person_id: 1}
+    @update_attrs %{text: "some updated text", status: 1}
+    @invalid_attrs %{text: nil}
+
+    def item_fixture(attrs \\ %{}) do
+      {:ok, item} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Item.create_item()
+
+      item
+    end
+
+    test "get_item!/1 returns the item with given id" do
+      item = item_fixture(@valid_attrs)
+      assert Item.get_item!(item.id) == item
+    end
+
+    test "create_item/1 with valid data creates a item" do
+      assert {:ok, %Item{} = item} = Item.create_item(@valid_attrs)
+      assert item.text == "some text"
+
+      inserted_item = List.first(Item.list_items())
+      assert inserted_item.text == @valid_attrs.text
+    end
+
+    test "create_item/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Item.create_item(@invalid_attrs)
+    end
+
+    test "list_items/0 returns a list of todo items stored in the DB" do
+      item1 = item_fixture()
+      item2 = item_fixture()
+      items = Item.list_items()
+      assert Enum.member?(items, item1)
+      assert Enum.member?(items, item2)
+    end
+
+    test "update_item/2 with valid data updates the item" do
+      item = item_fixture()
+      assert {:ok, %Item{} = item} = Item.update_item(item, @update_attrs)
+      assert item.text == "some updated text"
+    end
+  end
+end
+```
+
+Take a moment to _understand_ what is being tested.
+Once you have written out (_or let's face it, copy-pasted_) the test code,
+save the file and run the tests:
+
+```
+mix test test/live_view_todo/item_test.exs
+```
+
+Since the functions don't yet exist,
+you will see all the test _fail_:
+
+```
+  1) test items get_item!/1 returns the item with given id (LiveViewTodo.ItemTest)
+     test/live_view_todo/item_test.exs:19
+     ** (UndefinedFunctionError) function LiveViewTodo.Item.create_item/1 is undefined or private
+     code: item = item_fixture(@valid_attrs)
+     stacktrace:
+       (live_view_todo 0.1.0) LiveViewTodo.Item.create_item(%{person_id: 1, text: "some text"})
+       test/live_view_todo/item_test.exs:14: LiveViewTodo.ItemTest.item_fixture/1
+       test/live_view_todo/item_test.exs:20: (test)
+
+etc ...
+
+Finished in 0.2 seconds
+5 tests, 5 failures
+```
+
+Hopefully these CRUD tests are familiar to you.
+If they aren't, please read:
+https://hexdocs.pm/phoenix/testing.html <br />
+If you still have any doubts, please
+[ask a specific question](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues/new).
+
+The focus of this tutorial is `LiveView` not CRUD testing,
+the sooner we get to the `LievView` part the better,
+this is just the "setup" we need to do for inserting todo item data.
+
+Let's write the functions to make the tests pass!
+
+#### 3.3 Make the CRUD Tests _Pass_
+
+Open the `lib/live_view_todo/item.ex` file
+and add the following lines of code:
+
+```elixir
+@doc """
+Creates a item.
+
+## Examples
+
+    iex> create_item(%{text: "Learn LiveView"})
+    {:ok, %Item{}}
+
+    iex> create_item(%{text: nil})
+    {:error, %Ecto.Changeset{}}
+
+"""
+def create_item(attrs \\ %{}) do
+  %Item{}
+  |> changeset(attrs)
+  |> Repo.insert()
+end
+
+@doc """
+Gets a single item.
+
+Raises `Ecto.NoResultsError` if the Item does not exist.
+
+## Examples
+
+    iex> get_item!(123)
+    %Item{}
+
+    iex> get_item!(456)
+    ** (Ecto.NoResultsError)
+
+"""
+def get_item!(id), do: Repo.get!(Item, id)
+
+
+@doc """
+Returns the list of items.
+
+## Examples
+
+    iex> list_items()
+    [%Item{}, ...]
+
+"""
+def list_items do
+  Repo.all(Item)
+end
+
+@doc """
+Updates a item.
+
+## Examples
+
+    iex> update_item(item, %{field: new_value})
+    {:ok, %Item{}}
+
+    iex> update_item(item, %{field: bad_value})
+    {:error, %Ecto.Changeset{}}
+
+"""
+def update_item(%Item{} = item, attrs) do
+  item
+  |> Item.changeset(attrs)
+  |> Repo.update()
+end
+```
+
+After saving the `item.ex` file,
+re-run the tests with:
+
+```sh
+mix test test/live_view_todo/item_test.exs
+```
+
+You should see them pass:
+
+```sh
+.....
+
+Finished in 0.2 seconds
+5 tests, 0 failures
+
+Randomized with seed 208543
+```
+
+Now that we have our CRUD functions written (_and documented+tested_),
+we can move on to the _fun_ part, building the Todo App in `LiveView`!
+
 <br />
 
-### 4. Create the Functions
+### 4. Handle Todo List `Item` Creation
 
-```space
+The first event we want to handle in our `LiveView` App is "create";
+the act of creating a new Todo List `item`.
 
+Let's start by adding a _test_ for creating an item.
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test:
 
-
-
+```elixir
+test "connect and create a todo item", %{conn: conn} do
+  {:ok, view, _html} = live(conn, "/")
+  assert render_submit(view, :create, %{"text" => "Learn Elixir"}) =~ "Learn Elixir"
+end
 ```
 
-Keeping this for later:
+Docs for this LiveView testing using `render_submit/1`:
+https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#render_submit/1
+
+<br />
+
+If you attempt to run this test:
+
+```sh
+mix test test/live_view_todo_web/live/page_live_test.exs
+```
+
+you will see it _fail_:
+
+```sh
+1) test connect and create a todo item (LiveViewTodoWeb.PageLiveTest)
+    test/live_view_todo_web/live/page_live_test.exs:12
+    ** (EXIT from #PID<0.441.0>) an exception was raised:
+
+        ** (FunctionClauseError) no function clause matching in LiveViewTodoWeb.PageLive.handle_event/3
+```
+
+In order to make the test _pass_ we will need to add two blocks of code.
+
+Open the `lib/live_view_todo_web/live/page_live.html.leex` file
+and locate the line in the `<header>` section:
 
 ```html
-<form phx-change="suggest" phx-submit="search">
+<input class="new-todo" placeholder="What needs to be done?" autofocus="" />
+```
+
+Replace it with the following:
+
+```html
+<form phx-submit="create" id="form">
   <input
+    id="new_todo"
+    class="new-todo"
     type="text"
-    name="q"
-    value="<%= @query %>"
-    placeholder="Live dependency search"
-    list="results"
-    autocomplete="off"
+    name="text"
+    placeholder="What needs to be done?"
+    autofocus=""
+    required="required"
   />
-  <datalist id="results">
-    <%= for {app, _vsn} <- @results do %>
-    <option value="<%= app %>"><%= app %></option>
-    <% end %>
-  </datalist>
-  <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
 </form>
 ```
+
+The important part is the `phx-submit="create"`
+which tells `LiveView` which event to emit when the form is submitted.
+
+Once you've saved the `page_live.html.leex` file,
+open the `lib/live_view_todo_web/live/page_live.ex` file
+and add the following handler code to it:
+
+```elixir
+@topic "live"
+
+@impl true
+def handle_event("create", %{"text" => text}, socket) do
+  Item.create_item(%{text: text})
+  socket = assign(socket, items: Item.list_items(), active: %Item{})
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  {:noreply, socket}
+end
+```
+
+The `@topic "live"` is the WebSocket (_Phoenix Channel_) topic
+defined as a
+[module attribute](https://elixir-lang.org/getting-started/module-attributes.html)
+(_like a Global Constant_),
+which we will use to both subscribe to and broadcast on.
+
+With that in place you can now create items in the browser!
+Run the app: `mix phx.sever` and you should be able to add items.
+_However_ they will not _appear_ in the UI.
+Let's fix that next.
+
+<br />
+
+### 5. _Show_ the Created Todo `Items`
+
+In order to _show_ the Todo `items` we are creating,
+we need to:
+
+1. Lookup and assign the `items` in the `mount/3` function
+2. Loop through and render the `item` in the `page_live.html.leex` template
+
+Let's start by updating the `mount/3` function in
+`/lib/live_view_todo_web/live/page_live.ex`:
+
+```elixir
+  def mount(_params, _session, socket) do
+    LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
+    {:ok, assign(socket, items: Item.list_items())}
+  end
+```
+
+The `@topic` was defined above in Step 4.
+You may need to hoist it to the top of the file below the `alias`.
+
+Then in the
+`lib/live_view_todo_web/live/page_live.html.leex` file
+replace the code:
+
+```html
+<ul class="todo-list">
+  <li data-id="1590167947253" class="">
+    <div class="view">
+      <input class="toggle" type="checkbox" />
+      <label>Learn how to build a Todo list in Phoenix</label>
+      <button class="destroy"></button>
+    </div>
+  </li>
+  <li data-id="1590167956628" class="completed">
+    <div class="view">
+      <input class="toggle" type="checkbox" />
+      <label>Completed item</label>
+      <button class="destroy"></button>
+    </div>
+  </li>
+</ul>
+```
+
+With the following:
+
+```elixir
+<ul class="todo-list">
+  <%= for item <- @items do %>
+  <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
+    <div class="view">
+      <input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+      <label><%= item.text %></label>
+      <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
+    </div>
+  </li>
+  <% end %>
+</ul>
+```
+
+You will notice that there are two functions
+`completed?/1` and `checked?/1`
+invoked in that block of template code.
+
+We need to define the functions in
+`/lib/live_view_todo_web/live/page_live.ex`:
+
+```elixir
+def checked?(item) do
+  if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+end
+
+def completed?(item) do
+  if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
+end
+```
+
+These are convenience functions.
+We _could_ have embedded this code directly in the template,
+however we prefer to _minimize_ logic in the templates
+so that they are easier to read/maintain.
+
+With that template update and helper functions saved,
+we can now create and _see_ our created Todo `item`:
+
+![todo-items-create](https://user-images.githubusercontent.com/194400/96370930-718fab80-1157-11eb-9e8a-24b4548fcf1c.png)
+
+<br />
+
+### 6. Toggle the State of Todo Items
+
+The next piece of functionality we want in a Todo List
+is the ability to **`toggle`** the completion from "todo" to "done".
+
+In our `item` `schema` (created in step 3),
+we defined `status` as an `integer`.
+The `default` value for `item.status`
+when a **new `item`** is inserted is `0`.
+
+<br />
+
+Let's create a (_failing_) test for **toggling** items.
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test to it:
+
+```elixir
+test "toggle an item", %{conn: conn} do
+  {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+  assert item.status == 0
+
+  {:ok, view, _html} = live(conn, "/")
+  assert render_click(view, :toggle, %{"id" => item.id, "value" => 1}) =~ "completed"
+
+  updated_item = Item.get_item!(item.id)
+  assert updated_item.status == 1
+end
+```
+
+You may have noticed that in the template,
+we included an `<input>` with the `type="checkbox"`
+
+```elixir
+<input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+```
+
+This line of code already has everything we need to enable the **`toggle`** feature
+on the front-end, we just need to create a handler in `page_live.ex`
+to handle the event.
+
+Open the
+`/lib/live_view_todo_web/live/page_live.ex`
+file and add the following code to it:
+
+```elixir
+@impl true
+def handle_event("toggle", data, socket) do
+  status = if Map.has_key?(data, "value"), do: 1, else: 0
+  item = Item.get_item!(Map.get(data, "id"))
+  Item.update_item(item, %{id: item.id, status: status})
+  socket = assign(socket, items: Item.list_items(), active: %Item{})
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  {:noreply, socket}
+end
+```
+
+Once you've saved the file,
+the test will pass.
+
+<br />
+
+### 7. "Delete" a Todo `item`
+
+Rather than _permanently_ deleting items which destroys history/accountability,
+we prefer to
+["_soft deletion_"](https://en.wiktionary.org/wiki/soft_deletion)
+which allows people to "undo" the operation.
+
+Open
+`test/live_view_todo/item_test.exs`
+and add the following test to it:
+
+```elixir
+test "delete_item/1 soft-deltes an item" do
+  item = item_fixture()
+  assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
+  assert deleted_item.status == 2
+end
+```
+
+If you attempt to run the test,
+you will see it _fail_:
+
+```sh
+1) test items delete_item/1 soft-deltes an item (LiveViewTodo.ItemTest)
+    test/live_view_todo/item_test.exs:50
+    ** (UndefinedFunctionError) function LiveViewTodo.Item.delete_item/1 is undefined or private
+    code: assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
+    stacktrace:
+      (live_view_todo 0.1.0) LiveViewTodo.Item.delete_item(157)
+      test/live_view_todo/item_test.exs:52: (test)
+```
+
+To make the test _pass_,
+open your `lib/live_view_todo/item.ex` file
+and add the following function definition:
+
+```elixir
+def delete_item(id) do
+  get_item!(id)
+  |> Item.changeset(%{status: 2})
+  |> Repo.update()
+end
+```
+
+Having defined the `delete/1` function
+as updating the `item.status` to **`2`**,
+we can now create a test for a `LiveView` handler
+that invokes this function.
+
+Open the
+`test/live_view_todo_web/live/page_live_test.exs`
+file and add the following test to it:
+
+```elixir
+test "delete an item", %{conn: conn} do
+  {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+  assert item.status == 0
+
+  {:ok, view, _html} = live(conn, "/")
+  assert render_click(view, :delete, %{"id" => item.id}) =~ "Todo"
+
+  updated_item = Item.get_item!(item.id)
+  assert updated_item.status == 2
+end
+```
+
+To make this test pass,
+we need to add the following `handle_event/3` handler to `page_live.ex`:
+
+```elixir
+@impl true
+def handle_event("delete", data, socket) do
+  Item.delete_item(Map.get(data, "id"))
+  socket = assign(socket, items: Item.list_items(), active: %Item{})
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  {:noreply, socket}
+end
+```
+
+This point we've written a bunch of code,
+let's see it in _action_ in the front-end.
+
+Run the Phoenix Sever: `mix phx.server`
+and visit
+[http://localhost:4000](http://localhost:4000)
+in your web browser.
+You should see:
+
+![liveview-todo-delete](https://user-images.githubusercontent.com/194400/96378407-9b5ec780-1183-11eb-971d-94988352a0cf.gif)
+
+<br />
+
+# `@Todo: Finish the Tutorial` (`#HelpWanted`)
+
+This tutorial already implements the _basics_.
+We need _your_ help extending it to add these last few features.
+Thankfully we have already implemented this before
+so you will have a head-start.
+
+<br />
+
+### 8. Editing Todo `item.text`
+
+We need to borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
+but make it `LiveView` friendly.
+
+<br />
+
+### 9. Footer Navigation
+
+Borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#9-footer-navigation
+
+<br />
+
+### 10. Clear Completed
+
+Borrow from:
+https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
+
+<br />
+
+<hr />
+
+### 11. Deploy to Heroku
+
+Deployment is beyond the scope of this tutorial.
+But we created a _separate_
+guide for it:
+[elixir-phoenix-app-deployment.md](https://github.com/dwyl/learn-heroku/blob/master/elixir-phoenix-app-deployment.md)
+
+Once you have _deployed_ you will will be able
+to view/use your app in any Web/Mobile Browser.
+
+e.g:
+https://liveview-todo.herokuapp.com
+
+#### `tl;dr`
+
+- [x] Add the build packs
+
+Run the commands:
+
+```
+heroku git:remote -a liveview-todo
+heroku run "POOL_SIZE=2 mix ecto.migrate"
+```
+
+<br />
 
 <!--
 Bonus Level Adding Timers with Typescript

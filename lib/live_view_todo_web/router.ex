@@ -10,9 +10,9 @@ defmodule LiveViewTodoWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
+  # pipeline :api do
+  #   plug :accepts, ["json"]
+  # end
 
   scope "/", LiveViewTodoWeb do
     pipe_through :browser
@@ -32,12 +32,17 @@ defmodule LiveViewTodoWeb.Router do
   # If your application does not have an admins-only section yet,
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
+<<<<<<< HEAD
   if Mix.env() do
     import Phoenix.LiveDashboard.Router
+=======
+  # if Mix.env() in [:dev, :test] do
+  #   import Phoenix.LiveDashboard.Router
+>>>>>>> a04c13f7ebbb58dd8449f2f0bd7ccf17f0ee4fa2
 
-    scope "/" do
-      pipe_through :browser
-      live_dashboard "/dashboard", metrics: LiveViewTodoWeb.Telemetry
-    end
-  end
+  #   scope "/" do
+  #     pipe_through :browser
+  #     live_dashboard "/dashboard", metrics: LiveViewTodoWeb.Telemetry
+  #   end
+  # end
 end

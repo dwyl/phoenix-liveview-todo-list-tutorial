@@ -1,0 +1,18 @@
+language: elixir
+elixir:
+  - 1.10.3
+otp_release:
+  - 22.1.8
+services:
+  - postgresql
+env:
+  - MIX_ENV=test
+script:
+  - mix deps.get
+  - mix coveralls.json
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+cache:
+  directories:
+    - _build
+    - deps

@@ -46,5 +46,11 @@ defmodule LiveViewTodo.ItemTest do
       assert {:ok, %Item{} = item} = Item.update_item(item, @update_attrs)
       assert item.text == "some updated text"
     end
+
+    test "delete_item/1 soft-deltes an item" do
+      item = item_fixture()
+      assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
+      assert deleted_item.status == 2
+    end
   end
 end

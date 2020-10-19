@@ -26,7 +26,6 @@ secret_key_base =
 config :live_view_todo, LiveViewTodoWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "//todolist.gigalixirapp.com", port: 443],
-  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  url: [scheme: "http", host: "//todolist.gigalixirapp.com", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: secret_key_base

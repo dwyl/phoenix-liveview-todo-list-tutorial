@@ -1,0 +1,19 @@
+image:
+  file: .gitpod.Dockerfile
+
+# List the ports you want to expose and what to do when they are served. See https://www.gitpod.io/docs/43_config_ports/
+ports:
+- port: 4000
+
+# List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
+tasks:
+# Install front-end assets
+- init: cd apps/mkfifo/assets && npm install && node node_modules/webpack/bin/webpack.js --mode development
+# Install dependencies
+- init: psql --command "CREATE USER postgres WITH SUPERUSER PASSWORD 'postgres';" && mix deps.get && mix ecto.create
+  command: iex -S mix phx.server
+
+vscode:
+  extensions:
+    - JakeBecker.elixir-ls@0.2.25:X1tqg5Hmluq055QJpf0/7A==
+    - mjmcloug.vscode-elixir@1.1.0:w8GjsJyyhVFmCZmBc2Ws7A==

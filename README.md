@@ -29,7 +29,7 @@ that helps teams build reliable Apps & APIs fast. <br />
 `LiveView` takes the simplicity of building realtime features
 to the next level of elegance and simplicity.
 
-`LiveView` lets us create a slick single a page app
+`LiveView` lets us create a slick single-page app
 with a **native** (_no lag or refresh_) experience
 without writing `JavaScript`.
 

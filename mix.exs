@@ -73,7 +73,8 @@ defmodule LiveViewTodo.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       c: ["coveralls.html"],
-      s: ["phx.server"]
+      s: ["phx.server"],
+      "assets.deploy": ["esbuild default --minify", "phx.digest"]
     ]
   end
 end

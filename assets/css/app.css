@@ -1,5 +1,4 @@
 /* This file is for your main application css. */
-@import "./phoenix.css";
 @import "./todomvc-app.css";
 
 /* LiveView specific classes for your customizations */

@@ -205,7 +205,49 @@ in your web browser.
 As we saw in the previous step, our App looks like a fresh Phoenix App.
 Let's make it look like a todo list.
 
-#### 2.1 Update Root Layout
+#### 2.1 Update Router and controller
+
+in `lib/live_view_todo_web/router.ex` file
+change `get` to `live` and rename the controller
+`PageController` to `PageLive`
+
+from: 
+
+```elixir
+ scope "/", LiveViewTodoWeb do
+    pipe_through :browser
+
+    get "/", PageController, :index
+  end
+```
+
+to:
+
+```elixir
+ scope "/", LiveViewTodoWeb do
+    pipe_through :browser
+
+    live "/", PageLive, :index
+  end
+```
+
+Now create the new `PageLive` controller.
+By convention LiveView files are created in a `live` folder.
+Create the `lib/live_view_todo_web/live/page_live.ex` file and
+add the following content:
+
+```elixir
+defmodule LiveViewTodoWeb.PageLive do
+  use Phoenix.LiveView, layout: {LiveViewTodoWeb.LayoutView, "live.html"}
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+end
+```
+
+#### 2.2 Update Root Layout
 
 Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
 and remove the `<header>` section

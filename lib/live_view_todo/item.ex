@@ -54,7 +54,6 @@ defmodule LiveViewTodo.Item do
   """
   def get_item!(id), do: Repo.get!(Item, id)
 
-
   @doc """
   Returns the list of items.
 
@@ -69,7 +68,6 @@ defmodule LiveViewTodo.Item do
     |> order_by(desc: :inserted_at)
     |> where([a], is_nil(a.status) or a.status != 2)
     |> Repo.all()
-
   end
 
   @doc """

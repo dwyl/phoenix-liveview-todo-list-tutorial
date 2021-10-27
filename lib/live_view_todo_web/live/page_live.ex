@@ -1,12 +1,13 @@
 defmodule LiveViewTodoWeb.PageLive do
-  use LiveViewTodoWeb, :live_view
+  use Phoenix.LiveView, layout: {LiveViewTodoWeb.LayoutView, "live.html"}
   alias LiveViewTodo.Item
 
   @topic "live"
 
   @impl true
   def mount(_params, _session, socket) do
-    LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
+    # subscribe to the channel
+    LiveViewTodoWeb.Endpoint.subscribe(@topic)
     {:ok, assign(socket, items: Item.list_items())}
   end
 
@@ -42,11 +43,10 @@ defmodule LiveViewTodoWeb.PageLive do
   end
 
   def checked?(item) do
-    if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+    if not is_nil(item.status) and item.status > 0, do: true, else: false
   end
 
   def completed?(item) do
     if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
   end
-
 end

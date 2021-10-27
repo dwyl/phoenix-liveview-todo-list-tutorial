@@ -18,11 +18,15 @@
   	<label for="toggle-all">Mark all as complete</label>
   	<ul class="todo-list">
       <%= for item <- @items do %>
-      <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
+      <li data-id={item.id} class={completed?(item)}>
         <div class="view">
-          <input class="toggle" type="checkbox" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+          <%= if checked?(item) do %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+          <% else %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+          <% end %>
           <label><%= item.text %></label>
-          <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
+          <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
         </div>
       </li>
       <% end %>

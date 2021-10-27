@@ -1,8 +1,7 @@
 <div align="center">
 
 # Phoenix LiveView Todo List Tutorial
-
-[![Build Status](https://img.shields.io/travis/com/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](https://travis-ci.com/dwyl/phoenix-liveview-todo-list-tutorial)
+[![Elixir CI](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/actions/workflows/ci.yml/badge.svg)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/actions/workflows/ci.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
 [![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)
@@ -131,12 +130,12 @@ In your terminal run the following `mix` command
 to generate the new Phoenix app:
 
 ```sh
-mix phx.new live_view_todo --live
+mix phx.new live_view_todo
 ```
 
-The `--live` flag tells the `phx.new`
+By default `phx.new`
 (new `Phoenix` App) generator command
-that we are creating a `LiveView` application.
+creates a `LiveView` application.
 It will setup the dependencies and boilerplate
 for us to get going as fast as possible.
 
@@ -208,7 +207,7 @@ Let's make it look like a todo list.
 
 #### 2.1 Update Root Layout
 
-Open the `lib/live_view_todo_web/templates/layout/root.html.leex` file
+Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
 and remove the `<header>` section
 such that the contents file is the following:
 
@@ -221,8 +220,8 @@ such that the contents file is the following:
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <%= csrf_meta_tag() %>
     <%= live_title_tag assigns[:page_title] || "LiveViewTodo", suffix: " · Phoenix Framework" %>
-    <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
-    <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
+    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body>
     <%= @inner_content %>
@@ -230,54 +229,72 @@ such that the contents file is the following:
 </html>
 ```
 
-#### 2.2 Update Root Layout
+#### 2.2 Create page_live layout
 
-Open the `lib/live_view_todo_web/live/page_live.html.leex` file
-and replace the contents with the following:
+Create the `lib/live_view_todo_web/live/page_live.html.heex` layout file and
+add the following content:
 
 ```html
 <section class="todoapp">
   <header class="header">
-    <h1>todos</h1>
-    <input class="new-todo" placeholder="What needs to be done?" autofocus="" />
+  	<h1>Todos</h1>
+    <form phx-submit="create" id="form">
+      <input
+        id="new_todo"
+        class="new-todo"
+        type="text"
+        name="text"
+        placeholder="What needs to be done?"
+        autofocus=""
+        required="required"
+      />
+    </form>
   </header>
   <section class="main" style="display: block;">
-    <input id="toggle-all" class="toggle-all" type="checkbox" />
-    <label for="toggle-all">Mark all as complete</label>
-    <ul class="todo-list">
-      <li data-id="1590167947253" class="">
+  	<input id="toggle-all" class="toggle-all" type="checkbox">
+  	<label for="toggle-all">Mark all as complete</label>
+  	<ul class="todo-list">
+      <%= for item <- @items do %>
+      <li data-id={item.id} class={completed?(item)}>
         <div class="view">
-          <input class="toggle" type="checkbox" />
-          <label>Learn how to build a Todo list in Phoenix</label>
-          <button class="destroy"></button>
+          <%= if checked?(item) do %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+          <% else %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+          <% end %>
+          <label><%= item.text %></label>
+          <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
         </div>
       </li>
-      <li data-id="1590167956628" class="completed">
-        <div class="view">
-          <input class="toggle" type="checkbox" />
-          <label>Completed item</label>
-          <button class="destroy"></button>
-        </div>
-      </li>
+      <% end %>
     </ul>
   </section>
+  <%= if Enum.count(@items) > 0 do %>
   <footer class="footer" style="display: block;">
-    <span class="todo-count"><strong>1</strong> item left</span>
-    <ul class="filters">
-      <li>
-        <a href="#/" class="selected">All</a>
-      </li>
-      <li>
-        <a href="#/active">Active</a>
-      </li>
-      <li>
-        <a href="#/completed">Completed</a>
-      </li>
-    </ul>
-    <button class="clear-completed" style="display: block;">
-      Clear completed
-    </button>
+  	<span class="todo-count">
+      <strong>
+        <%= Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) %>
+      </strong>
+      <%= if Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) == 1 do %>
+        item
+      <% else %>
+        items
+      <% end %>
+      left</span>
+  	<ul class="filters">
+  		<li>
+  			<a href="#/" class="selected">All</a>
+  		</li>
+  		<li>
+  			<a href="#/active">Active</a>
+  		</li>
+  		<li>
+  			<a href="#/completed">Completed</a>
+  		</li>
+  	</ul>
+  	<button class="clear-completed" style="display: block;">Clear completed</button>
   </footer>
+  <% end %>
 </section>
 ```
 

@@ -1,5 +1,5 @@
 defmodule LiveViewTodoWeb.PageLive do
-  use Phoenix.LiveView, layout: {LiveViewTodoWeb.LayoutView, "live.html"}
+  use LiveViewTodoWeb, :live_view
   alias LiveViewTodo.Item
 
   @topic "live"

@@ -238,7 +238,7 @@ add the following content:
 
 ```elixir
 defmodule LiveViewTodoWeb.PageLive do
-  use Phoenix.LiveView, layout: {LiveViewTodoWeb.LayoutView, "live.html"}
+  use LiveViewTodoWeb, :live_view
 
   @impl true
   def mount(_params, _session, socket) do

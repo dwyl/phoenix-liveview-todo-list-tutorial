@@ -227,7 +227,7 @@ to:
  scope "/", LiveViewTodoWeb do
     pipe_through :browser
 
-    live "/", PageLive, :index
+    live "/", PageLive
   end
 ```
 

@@ -12,11 +12,6 @@ defmodule LiveViewTodoWeb.PageLive do
   end
 
   @impl true
-  def render(assigns) do
-    LiveViewTodoWeb.PageView.render("page_live.html", assigns)
-  end
-
-  @impl true
   def handle_event("create", %{"text" => text}, socket) do
     Item.create_item(%{text: text})
     socket = assign(socket, items: Item.list_items(), active: %Item{})
@@ -45,5 +40,13 @@ defmodule LiveViewTodoWeb.PageLive do
   @impl true
   def handle_info(data, socket) do
     {:noreply, assign(socket, items: data.payload.items)}
+  end
+
+  def checked?(item) do
+    if not is_nil(item.status) and item.status > 0, do: true, else: false
+  end
+
+  def completed?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
   end
 end

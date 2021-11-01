@@ -766,7 +766,7 @@ you will see it _fail_:
 
 In order to make the test _pass_ we will need to add two blocks of code.
 
-Open the `lib/live_view_todo_web/live/page_live.html.leex` file
+Open the `lib/live_view_todo_web/live/page_live.html.heex` file
 and locate the line in the `<header>` section:
 
 ```html
@@ -794,10 +794,19 @@ which tells `LiveView` which event to emit when the form is submitted.
 
 Once you've saved the `page_live.html.leex` file,
 open the `lib/live_view_todo_web/live/page_live.ex` file
-and add the following handler code to it:
+and under `use LiveViewTodoWeb, :live_view` add
 
 ```elixir
+alias LiveViewTodo.Item
+
 @topic "live"
+
+```
+
+
+and the add the following handler code after the `mount` function:
+
+```elixir
 
 @impl true
 def handle_event("create", %{"text" => text}, socket) do
@@ -835,12 +844,9 @@ Let's start by updating the `mount/3` function in
 ```elixir
   def mount(_params, _session, socket) do
     LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
-    {:ok, assign(socket, items: Item.list_items())}
+    {:ok, assign(socket, items: Item.list_items())} # add items to assigns
   end
 ```
-
-The `@topic` was defined above in Step 4.
-You may need to hoist it to the top of the file below the `alias`.
 
 Then in the
 `lib/live_view_todo_web/live/page_live.html.leex` file
@@ -869,15 +875,19 @@ With the following:
 
 ```elixir
 <ul class="todo-list">
-  <%= for item <- @items do %>
-  <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
-    <div class="view">
-      <input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
-      <label><%= item.text %></label>
-      <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
-    </div>
-  </li>
-  <% end %>
+    <%= for item <- @items do %>
+    <li data-id={item.id} class={completed?(item)}>
+      <div class="view">
+        <%= if checked?(item) do %>
+          <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+        <% else %>
+          <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+        <% end %>
+        <label><%= item.text %></label>
+        <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
+      </div>
+    </li>
+    <% end %>
 </ul>
 ```
 
@@ -944,10 +954,14 @@ You may have noticed that in the template,
 we included an `<input>` with the `type="checkbox"`
 
 ```elixir
-<input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+<%= if checked?(item) do %>
+  <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+<% else %>
+  <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+<% end %>
 ```
 
-This line of code already has everything we need to enable the **`toggle`** feature
+These lines of code already has everything we need to enable the **`toggle`** feature
 on the front-end, we just need to create a handler in `page_live.ex`
 to handle the event.
 

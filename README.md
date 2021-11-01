@@ -5,7 +5,7 @@
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
 [![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)
-[![HitCount](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
+[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-todo-list-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
 
 **Build your _second_ App** using **Phoenix LiveView** <br />
 and _understand_ how to build real-world apps in **20 minutes** or _less_!

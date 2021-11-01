@@ -159,7 +159,7 @@ And then run the following `mix` command:
 mix test
 ```
 
-Aftr the application is compiled you should see:
+After the application is compiled you should see:
 
 ```
 ...

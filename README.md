@@ -1,12 +1,11 @@
 <div align="center">
 
 # Phoenix LiveView Todo List Tutorial
-
-[![Build Status](https://img.shields.io/travis/com/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](https://travis-ci.com/dwyl/phoenix-liveview-todo-list-tutorial)
+[![Elixir CI](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-todo-list-tutorial/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/actions/workflows/ci.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
 [![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)
-[![HitCount](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
+[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-todo-list-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
 
 **Build your _second_ App** using **Phoenix LiveView** <br />
 and _understand_ how to build real-world apps in **20 minutes** or _less_!
@@ -131,14 +130,11 @@ In your terminal run the following `mix` command
 to generate the new Phoenix app:
 
 ```sh
-mix phx.new live_view_todo --live
+mix phx.new live_view_todo
 ```
 
-The `--live` flag tells the `phx.new`
-(new `Phoenix` App) generator command
-that we are creating a `LiveView` application.
-It will setup the dependencies and boilerplate
-for us to get going as fast as possible.
+This command will setup the dependencies (including the liveView dependencies)
+and boilerplate for us to get going as fast as possible.
 
 When you see the following prompt in your terminal:
 
@@ -149,7 +145,7 @@ Fetch and install dependencies? [Yn]
 Type <kbd>Y</kbd> followed by the <kbd>Enter</kbd> key.
 That will download all the necessary dependencies.
 
-#### Checkpoint 1: _Run_ the _Tests_!
+#### Checkpoint 1a: _Run_ the _Tests_!
 
 In your terminal, go into the newly created app folder using:
 
@@ -163,16 +159,12 @@ And then run the following `mix` command:
 mix test
 ```
 
-You should see:
+After the application is compiled you should see:
 
 ```
-Generated phoenix app
-==> live_view_counter
-Compiling 14 files (.ex)
-Generated live_view_counter app
 ...
 
-Finished in 0.02 seconds
+Finished in 0.1 seconds (0.08s async, 0.05s sync)
 3 tests, 0 failures
 ```
 
@@ -206,9 +198,32 @@ in your web browser.
 As we saw in the previous step, our App looks like a fresh Phoenix App.
 Let's make it look like a todo list.
 
-#### 2.1 Update Root Layout
+#### 2.1 Create live folder
 
-Open the `lib/live_view_todo_web/templates/layout/root.html.leex` file
+By convention Phoenix uses a `live` folder to manage the LiveView files.
+Create this folder at `lib/live_view_todo_web/live`.
+
+Next we can create the `PageLive` controller module. Create the 
+`lib/live_view_todo_web/live/page_live.ex` and add the following content:
+
+```elixir
+defmodule LiveViewTodoWeb.PageLive do
+  use LiveViewTodoWeb, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+end
+```
+
+When using LiveView, the controller is required to implement 
+the [`mount`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) function,
+the entry point of the live page.
+
+#### 2.2 Update the Root Layout
+
+Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
 and remove the `<header>` section
 such that the contents file is the following:
 
@@ -221,19 +236,18 @@ such that the contents file is the following:
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <%= csrf_meta_tag() %>
     <%= live_title_tag assigns[:page_title] || "LiveViewTodo", suffix: " · Phoenix Framework" %>
-    <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
-    <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
+    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body>
     <%= @inner_content %>
   </body>
 </html>
 ```
+#### 2.3 Create the page_live layout
 
-#### 2.2 Update Root Layout
-
-Open the `lib/live_view_todo_web/live/page_live.html.leex` file
-and replace the contents with the following:
+Create the `lib/live_view_todo_web/live/page_live.html.heex` layout file and
+add the following content:
 
 ```html
 <section class="todoapp">
@@ -281,13 +295,39 @@ and replace the contents with the following:
 </section>
 ```
 
+
 > **Note**: we borrowed this code from:
 > https://github.com/dwyl/phoenix-todo-list-tutorial#3-create-the-todomvc-uiux
 > our `Phoenix` (_without `LiveView`_) Todo List Tutorial.
 
+#### 2.4 Update Router and controller
+
+in `lib/live_view_todo_web/router.ex` file
+change `get` to `live` and rename the controller
+`PageController` to `PageLive`
+
+from: 
+
+```elixir
+ scope "/", LiveViewTodoWeb do
+    pipe_through :browser
+
+    get "/", PageController, :index
+  end
+```
+
+to:
+
+```elixir
+ scope "/", LiveViewTodoWeb do
+    pipe_through :browser
+
+    live "/", PageLive
+  end
+```
+
 If you attempt to run the app now
-`mix phx.server`
-and visit
+`mix phx.server` and visit
 [http://localhost:4000](http://localhost:4000) <br />
 You will see this (_without the TodoMVC `CSS`_):
 
@@ -297,9 +337,7 @@ That's obviously not what we want,
 so let's get the TodoMVC `CSS`
 and save it in our project!
 
-<br />
-
-### 2.3 Save the TodoMVC CSS to `/assets/css`
+### 2.5 Save the TodoMVC CSS to `/assets/css`
 
 Visit
 http://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css <br />
@@ -310,7 +348,7 @@ e.g:
 
 <br />
 
-### 2.4 Import the `todomvc-app.css` in `app.scss`
+### 2.6 Import the `todomvc-app.css` in `app.scss`
 
 Open the `assets/css/app.scss` file and replace it with the following:
 
@@ -336,48 +374,28 @@ you should see the following:
 
 Now that we have the layout looking like we want it,
 we can move onto the fun part of making it _work_.
-But _first_ let's fix the failing test.
 
-If you run the test suite with the command:
+### 2.7 Update the test
 
-```sh
-mix test
-```
-
-You will see a failing test:
-
-```sh
-  1) test disconnected and connected render (LiveViewTodoWeb.PageLiveTest)
-     test/live_view_todo_web/live/page_live_test.exs:6
-     Assertion with =~ failed
-     code:  assert disconnected_html =~ "Welcome to Phoenix!"
-     left:  "<html lang=\"en\"><head><meta charset=\"utf-8\"/><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><meta charset=\"UTF-8\" content=\"B28oGEQ9ci0VBhBWVV4aJFw2Oys_BmMEJ0PV2gKAxJjo7nbpeCytKWU4\" csrf-param=\"_csrf_token\" method-param=\"_method\" name=\"csrf-token\"/><title data-suffix=\" · Phoenix Framework\">LiveViewTodo · Phoenix Framework</title></p><section class=\"todoapp\"><header class=\"header\">
-     <h1>todos</h1><input class=\"new-todo\" placeholder=\"What needs to be done?\" autofocus=\"\"/></header><section class=\"main\" style=\"display: block;\"><input id=\"toggle-all\" class=\"toggle-all\" type=\"checkbox\"/><label for=\"toggle-all\">Mark all as complete</label><ul class=\"todo-list\"><li data-id=\"1590167947253\" class=\"\"><div class=\"view\"><input class=\"toggle\" type=\"checkbox\"/><label>Learn how to build a Realtime Todo list in Phoenix LiveView</label><button class=\"destroy\">
-     </button></div></li><li data-id=\"1590167956628\" class=\"completed\"><div class=\"view\"><input class=\"toggle\" type=\"checkbox\"/><label>Completed item</label><button class=\"destroy\"></button></div></li></ul></section><footer class=\"footer\" style=\"display: block;\"><span class=\"todo-count\"><strong>1</strong> item left</span><ul class=\"filters\"><li><a href=\"#/\" class=\"selected\">All</a></li><li><a href=\"#/active\">Active</a></li><li><a href=\"#/completed\">Completed</a></li></ul><button class=\"clear-completed\" style=\"display: block;\">Clear completed</button></footer></section></main></div></body></html>"
-     right: "Welcome to Phoenix!"
-     stacktrace:
-       test/live_view_todo_web/live/page_live_test.exs:8: (test)
-
-
-Finished in 0.2 seconds
-3 tests, 1 failure
-
-```
-
-Open the `test/live_view_todo_web/live/page_live_test.exs` file
-and update the test assertions from:
+Now that we have a functioning LiveView page, let's create the tests under
+`test/live_view_todo_web/live` folder. Create the file 
+`test/live_view_todo_web/live/page_live_test.exs` and add the following:
 
 ```elixir
-assert disconnected_html =~ "Welcome to Phoenix!"
-assert render(page_live) =~ "Welcome to Phoenix!"
+defmodule LiveViewTodoWeb.PageLiveTest do
+ use LiveViewTodoWeb.ConnCase
+ import Phoenix.LiveViewTest
+
+ test "disconnected and connected mount", %{conn: conn} do
+   {:ok, page_live, disconnected_html} = live(conn, "/")
+   assert disconnected_html =~ "Todo"
+   assert render(page_live) =~ "What needs to be done"
+ end
+end
 ```
 
-To:
+and delete the `test/live_view_todo_web/controller/page_controller_test.exs` file.
 
-```elixir
-assert disconnected_html =~ "Todos"
-assert render(page_live) =~ "Todos"
-```
 
 Now when you re-run the tests:
 
@@ -395,7 +413,7 @@ Finished in 0.2 seconds
 3 tests, 0 failures
 ```
 
-Everything passing again, lets get back to building!
+Everything passing, lets get back to building!
 
 <br />
 
@@ -412,6 +430,12 @@ That will create two new files:
 
 - `lib/live_view_todo/item.ex` - the schema
 - `priv/repo/migrations/20201227070700_create_items.exs` - migration file (creates database table)
+
+Open the migration file to add a default value to `status`:
+
+```elixir
+add :status, :integer, default: 0  # add default value 0
+```
 
 Reference:
 https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html
@@ -467,6 +491,12 @@ we need this alias so that we can make database queries.
 Next add the line `alias __MODULE__` below the `alias` we just added;
 this just means "alias the Struct contained in this file so we can reference it".
 see: https://stackoverflow.com/questions/39854281/access-struct-inside-module/47501059
+
+Then add the default value for `status` to `0`:
+
+```elixir
+field :status, :integer, default: 0
+```
 
 Finally remove the `:person_id, :status`
 from the List of fields in `validate_required`.
@@ -526,7 +556,7 @@ defmodule LiveViewTodo.ItemTest do
   alias LiveViewTodo.Item
 
   describe "items" do
-    @valid_attrs %{text: "some text", person_id: 1}
+    @valid_attrs %{text: "some text", person_id: 1, status: 0}
     @update_attrs %{text: "some updated text", status: 1}
     @invalid_attrs %{text: nil}
 
@@ -748,7 +778,7 @@ you will see it _fail_:
 
 In order to make the test _pass_ we will need to add two blocks of code.
 
-Open the `lib/live_view_todo_web/live/page_live.html.leex` file
+Open the `lib/live_view_todo_web/live/page_live.html.heex` file
 and locate the line in the `<header>` section:
 
 ```html
@@ -776,10 +806,19 @@ which tells `LiveView` which event to emit when the form is submitted.
 
 Once you've saved the `page_live.html.leex` file,
 open the `lib/live_view_todo_web/live/page_live.ex` file
-and add the following handler code to it:
+and under `use LiveViewTodoWeb, :live_view` add
 
 ```elixir
+alias LiveViewTodo.Item
+
 @topic "live"
+
+```
+
+
+and the add the following handler code after the `mount` function:
+
+```elixir
 
 @impl true
 def handle_event("create", %{"text" => text}, socket) do
@@ -817,12 +856,9 @@ Let's start by updating the `mount/3` function in
 ```elixir
   def mount(_params, _session, socket) do
     LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
-    {:ok, assign(socket, items: Item.list_items())}
+    {:ok, assign(socket, items: Item.list_items())} # add items to assigns
   end
 ```
-
-The `@topic` was defined above in Step 4.
-You may need to hoist it to the top of the file below the `alias`.
 
 Then in the
 `lib/live_view_todo_web/live/page_live.html.leex` file
@@ -851,15 +887,19 @@ With the following:
 
 ```elixir
 <ul class="todo-list">
-  <%= for item <- @items do %>
-  <li data-id="<%= item.id %>" class='<%= completed?(item) %>'>
-    <div class="view">
-      <input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
-      <label><%= item.text %></label>
-      <button class="destroy" phx-click="delete" phx-value-id="<%= item.id %>"></button>
-    </div>
-  </li>
-  <% end %>
+    <%= for item <- @items do %>
+    <li data-id={item.id} class={completed?(item)}>
+      <div class="view">
+        <%= if checked?(item) do %>
+          <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+        <% else %>
+          <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+        <% end %>
+        <label><%= item.text %></label>
+        <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
+      </div>
+    </li>
+    <% end %>
 </ul>
 ```
 
@@ -922,14 +962,27 @@ test "toggle an item", %{conn: conn} do
 end
 ```
 
+Make sure to alias the `Item` structure in your test file:
+
+```elixir
+defmodule LiveViewTodoWeb.PageLiveTest do
+ use LiveViewTodoWeb.ConnCase
+ import Phoenix.LiveViewTest
+ alias LiveViewTodo.Item # alias Item here
+```
+
 You may have noticed that in the template,
 we included an `<input>` with the `type="checkbox"`
 
 ```elixir
-<input type="checkbox" class="toggle" phx-value-id="<%= item.id %>" phx-click="toggle" <%= checked?(item) %> />
+<%= if checked?(item) do %>
+  <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+<% else %>
+  <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+<% end %>
 ```
 
-This line of code already has everything we need to enable the **`toggle`** feature
+These lines of code already has everything we need to enable the **`toggle`** feature
 on the front-end, we just need to create a handler in `page_live.ex`
 to handle the event.
 
@@ -1013,7 +1066,7 @@ test "delete an item", %{conn: conn} do
   assert item.status == 0
 
   {:ok, view, _html} = live(conn, "/")
-  assert render_click(view, :delete, %{"id" => item.id}) =~ "Todo"
+  assert render_click(view, :delete, %{"id" => item.id})
 
   updated_item = Item.get_item!(item.id)
   assert updated_item.status == 2

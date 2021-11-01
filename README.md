@@ -550,7 +550,7 @@ defmodule LiveViewTodo.ItemTest do
   alias LiveViewTodo.Item
 
   describe "items" do
-    @valid_attrs %{text: "some text", person_id: 1}
+    @valid_attrs %{text: "some text", person_id: 1, status: 0}
     @update_attrs %{text: "some updated text", status: 1}
     @invalid_attrs %{text: nil}
 

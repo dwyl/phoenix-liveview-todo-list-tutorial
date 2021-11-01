@@ -389,7 +389,7 @@ defmodule LiveViewTodoWeb.PageLiveTest do
  test "disconnected and connected mount", %{conn: conn} do
    {:ok, page_live, disconnected_html} = live(conn, "/")
    assert disconnected_html =~ "Todo"
-   assert render(page_live) =~ "Todo"
+   assert render(page_live) =~ "What needs to be done"
  end
 end
 ```
@@ -491,6 +491,12 @@ we need this alias so that we can make database queries.
 Next add the line `alias __MODULE__` below the `alias` we just added;
 this just means "alias the Struct contained in this file so we can reference it".
 see: https://stackoverflow.com/questions/39854281/access-struct-inside-module/47501059
+
+Then add the default value for `status` to `0`:
+
+```elixir
+field :status, :integer, default: 0
+```
 
 Finally remove the `:person_id, :status`
 from the List of fields in `validate_required`.
@@ -956,6 +962,15 @@ test "toggle an item", %{conn: conn} do
 end
 ```
 
+Make sure to alias the `Item` structure in your test file:
+
+```elixir
+defmodule LiveViewTodoWeb.PageLiveTest do
+ use LiveViewTodoWeb.ConnCase
+ import Phoenix.LiveViewTest
+ alias LiveViewTodo.Item # alias Item here
+```
+
 You may have noticed that in the template,
 we included an `<input>` with the `type="checkbox"`
 
@@ -1051,7 +1066,7 @@ test "delete an item", %{conn: conn} do
   assert item.status == 0
 
   {:ok, view, _html} = live(conn, "/")
-  assert render_click(view, :delete, %{"id" => item.id}) =~ "Todo"
+  assert render_click(view, :delete, %{"id" => item.id})
 
   updated_item = Item.get_item!(item.id)
   assert updated_item.status == 2

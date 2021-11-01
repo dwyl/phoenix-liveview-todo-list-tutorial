@@ -133,11 +133,8 @@ to generate the new Phoenix app:
 mix phx.new live_view_todo
 ```
 
-By default `phx.new`
-(new `Phoenix` App) generator command
-creates a `LiveView` application.
-It will setup the dependencies and boilerplate
-for us to get going as fast as possible.
+This command will setup the dependencies (including the liveView dependencies)
+and boilerplate for us to get going as fast as possible.
 
 When you see the following prompt in your terminal:
 
@@ -148,7 +145,7 @@ Fetch and install dependencies? [Yn]
 Type <kbd>Y</kbd> followed by the <kbd>Enter</kbd> key.
 That will download all the necessary dependencies.
 
-#### Checkpoint 1: _Run_ the _Tests_!
+#### Checkpoint 1a: _Run_ the _Tests_!
 
 In your terminal, go into the newly created app folder using:
 
@@ -162,16 +159,12 @@ And then run the following `mix` command:
 mix test
 ```
 
-You should see:
+Aftr the application is compiled you should see:
 
 ```
-Generated phoenix app
-==> live_view_counter
-Compiling 14 files (.ex)
-Generated live_view_counter app
 ...
 
-Finished in 0.02 seconds
+Finished in 0.1 seconds (0.08s async, 0.05s sync)
 3 tests, 0 failures
 ```
 
@@ -205,7 +198,109 @@ in your web browser.
 As we saw in the previous step, our App looks like a fresh Phoenix App.
 Let's make it look like a todo list.
 
-#### 2.1 Update Router and controller
+#### 2.1 Create live folder
+
+By convention Phoenix uses a `live` folder to manage the LiveView files.
+Create this folder at `lib/live_view_todo_web/live`.
+
+Next we can create the `PageLive` controller module. Create the 
+`lib/live_view_todo_web/live/page_live.ex` and add the following content:
+
+```elixir
+defmodule LiveViewTodoWeb.PageLive do
+  use LiveViewTodoWeb, :live_view
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+end
+```
+
+When using LiveView, the controller is required to implement 
+the [`mount`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) function,
+the entry point of the live page.
+
+#### 2.2 Update the Root Layout
+
+Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
+and remove the `<header>` section
+such that the contents file is the following:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <%= csrf_meta_tag() %>
+    <%= live_title_tag assigns[:page_title] || "LiveViewTodo", suffix: " · Phoenix Framework" %>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
+    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
+  </head>
+  <body>
+    <%= @inner_content %>
+  </body>
+</html>
+```
+#### 2.3 Create the page_live layout
+
+Create the `lib/live_view_todo_web/live/page_live.html.heex` layout file and
+add the following content:
+
+```html
+<section class="todoapp">
+  <header class="header">
+    <h1>todos</h1>
+    <input class="new-todo" placeholder="What needs to be done?" autofocus="" />
+  </header>
+  <section class="main" style="display: block;">
+    <input id="toggle-all" class="toggle-all" type="checkbox" />
+    <label for="toggle-all">Mark all as complete</label>
+    <ul class="todo-list">
+      <li data-id="1590167947253" class="">
+        <div class="view">
+          <input class="toggle" type="checkbox" />
+          <label>Learn how to build a Todo list in Phoenix</label>
+          <button class="destroy"></button>
+        </div>
+      </li>
+      <li data-id="1590167956628" class="completed">
+        <div class="view">
+          <input class="toggle" type="checkbox" />
+          <label>Completed item</label>
+          <button class="destroy"></button>
+        </div>
+      </li>
+    </ul>
+  </section>
+  <footer class="footer" style="display: block;">
+    <span class="todo-count"><strong>1</strong> item left</span>
+    <ul class="filters">
+      <li>
+        <a href="#/" class="selected">All</a>
+      </li>
+      <li>
+        <a href="#/active">Active</a>
+      </li>
+      <li>
+        <a href="#/completed">Completed</a>
+      </li>
+    </ul>
+    <button class="clear-completed" style="display: block;">
+      Clear completed
+    </button>
+  </footer>
+</section>
+```
+
+
+> **Note**: we borrowed this code from:
+> https://github.com/dwyl/phoenix-todo-list-tutorial#3-create-the-todomvc-uiux
+> our `Phoenix` (_without `LiveView`_) Todo List Tutorial.
+
+#### 2.4 Update Router and controller
 
 in `lib/live_view_todo_web/router.ex` file
 change `get` to `live` and rename the controller
@@ -231,122 +326,8 @@ to:
   end
 ```
 
-Now create the new `PageLive` controller.
-By convention LiveView files are created in a `live` folder.
-Create the `lib/live_view_todo_web/live/page_live.ex` file and
-add the following content:
-
-```elixir
-defmodule LiveViewTodoWeb.PageLive do
-  use LiveViewTodoWeb, :live_view
-
-  @impl true
-  def mount(_params, _session, socket) do
-    {:ok, socket}
-  end
-end
-```
-
-#### 2.2 Update Root Layout
-
-Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
-and remove the `<header>` section
-such that the contents file is the following:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <%= csrf_meta_tag() %>
-    <%= live_title_tag assigns[:page_title] || "LiveViewTodo", suffix: " · Phoenix Framework" %>
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
-    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
-  </head>
-  <body>
-    <%= @inner_content %>
-  </body>
-</html>
-```
-
-#### 2.2 Create page_live layout
-
-Create the `lib/live_view_todo_web/live/page_live.html.heex` layout file and
-add the following content:
-
-```html
-<section class="todoapp">
-  <header class="header">
-  	<h1>Todos</h1>
-    <form phx-submit="create" id="form">
-      <input
-        id="new_todo"
-        class="new-todo"
-        type="text"
-        name="text"
-        placeholder="What needs to be done?"
-        autofocus=""
-        required="required"
-      />
-    </form>
-  </header>
-  <section class="main" style="display: block;">
-  	<input id="toggle-all" class="toggle-all" type="checkbox">
-  	<label for="toggle-all">Mark all as complete</label>
-  	<ul class="todo-list">
-      <%= for item <- @items do %>
-      <li data-id={item.id} class={completed?(item)}>
-        <div class="view">
-          <%= if checked?(item) do %>
-            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
-          <% else %>
-            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
-          <% end %>
-          <label><%= item.text %></label>
-          <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
-        </div>
-      </li>
-      <% end %>
-    </ul>
-  </section>
-  <%= if Enum.count(@items) > 0 do %>
-  <footer class="footer" style="display: block;">
-  	<span class="todo-count">
-      <strong>
-        <%= Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) %>
-      </strong>
-      <%= if Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) == 1 do %>
-        item
-      <% else %>
-        items
-      <% end %>
-      left</span>
-  	<ul class="filters">
-  		<li>
-  			<a href="#/" class="selected">All</a>
-  		</li>
-  		<li>
-  			<a href="#/active">Active</a>
-  		</li>
-  		<li>
-  			<a href="#/completed">Completed</a>
-  		</li>
-  	</ul>
-  	<button class="clear-completed" style="display: block;">Clear completed</button>
-  </footer>
-  <% end %>
-</section>
-```
-
-> **Note**: we borrowed this code from:
-> https://github.com/dwyl/phoenix-todo-list-tutorial#3-create-the-todomvc-uiux
-> our `Phoenix` (_without `LiveView`_) Todo List Tutorial.
-
 If you attempt to run the app now
-`mix phx.server`
-and visit
+`mix phx.server` and visit
 [http://localhost:4000](http://localhost:4000) <br />
 You will see this (_without the TodoMVC `CSS`_):
 
@@ -355,8 +336,6 @@ You will see this (_without the TodoMVC `CSS`_):
 That's obviously not what we want,
 so let's get the TodoMVC `CSS`
 and save it in our project!
-
-<br />
 
 ### 2.3 Save the TodoMVC CSS to `/assets/css`
 

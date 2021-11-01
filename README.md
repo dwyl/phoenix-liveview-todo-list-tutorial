@@ -431,6 +431,12 @@ That will create two new files:
 - `lib/live_view_todo/item.ex` - the schema
 - `priv/repo/migrations/20201227070700_create_items.exs` - migration file (creates database table)
 
+Open the migration file to add a default value to `status`:
+
+```elixir
+add :status, :integer, default: 0  # add default value 0
+```
+
 Reference:
 https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html
 

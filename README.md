@@ -913,7 +913,7 @@ We need to define the functions in
 
 ```elixir
 def checked?(item) do
-  if not is_nil(item.status) and item.status > 0, do: "checked", else: ""
+  is_nil(item.status) and item.status > 0
 end
 
 def completed?(item) do

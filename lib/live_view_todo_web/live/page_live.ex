@@ -7,7 +7,7 @@ defmodule LiveViewTodoWeb.PageLive do
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
-    LiveViewTodoWeb.Endpoint.subscribe(@topic)
+    if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic)
     {:ok, assign(socket, items: Item.list_items())}
   end
 

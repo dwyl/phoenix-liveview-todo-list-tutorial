@@ -855,7 +855,8 @@ Let's start by updating the `mount/3` function in
 
 ```elixir
   def mount(_params, _session, socket) do
-    LiveViewTodoWeb.Endpoint.subscribe(@topic) # subscribe to the channel
+    # subscribe to the channel
+    if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic) 
     {:ok, assign(socket, items: Item.list_items())} # add items to assigns
   end
 ```

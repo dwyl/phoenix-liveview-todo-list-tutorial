@@ -7,7 +7,7 @@ defmodule LiveViewTodoWeb.PageLive do
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
-    LiveViewTodoWeb.Endpoint.subscribe(@topic)
+    if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic)
     {:ok, assign(socket, items: Item.list_items())}
   end
 
@@ -43,7 +43,7 @@ defmodule LiveViewTodoWeb.PageLive do
   end
 
   def checked?(item) do
-    if not is_nil(item.status) and item.status > 0, do: true, else: false
+    not is_nil(item.status) and item.status > 0
   end
 
   def completed?(item) do

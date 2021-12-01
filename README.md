@@ -835,6 +835,29 @@ defined as a
 (_like a Global Constant_),
 which we will use to both subscribe to and broadcast on.
 
+So the following line:
+
+```elixir
+  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+```
+
+Will send the "update" event with the `socket.assigns` data
+to all the other clients on listening to the @topic.
+Now to listen to this message we can define the [handle_info](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:handle_info/2) callback.
+Add the following code:
+
+```elixir
+@impl true
+def handle_info(%{event: "update", payload: %{items: items}}, socket) do
+  {:noreply, assign(socket, items: items)}
+end
+```
+
+We are using pattern matching on the first parameter to make sure
+the handle_info match the "update" event. We then assign to the socket
+the new list of items.
+
+
 With that in place you can now create items in the browser!
 Run the app: `mix phx.sever` and you should be able to add items.
 _However_ they will not _appear_ in the UI.

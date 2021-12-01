@@ -854,7 +854,7 @@ end
 ```
 
 We are using pattern matching on the first parameter to make sure
-the handle_info match the "update" event. We then assign to the socket
+the handle_info matches the "update" event. We then assign to the socket
 the new list of items.
 
 

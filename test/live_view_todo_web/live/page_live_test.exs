@@ -36,14 +36,13 @@ defmodule LiveViewTodoWeb.PageLiveTest do
     assert updated_item.status == 2
   end
 
-
   # This test is just to ensure coverage of the handle_info/2 function
   # It's not required but we like to have 100% coverage.
   # https://stackoverflow.com/a/60852290/1148249
   test "handle_info/2", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
     {:ok, item} = Item.create_item(%{"text" => "Always Learning"})
-    send(view.pid, %{payload: %{ items: Item.list_items() }})
+    send(view.pid, %{event: "update", payload: %{items: Item.list_items()}})
     assert render(view) =~ item.text
   end
 end

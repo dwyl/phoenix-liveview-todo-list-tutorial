@@ -38,8 +38,8 @@ defmodule LiveViewTodoWeb.PageLive do
   end
 
   @impl true
-  def handle_info(data, socket) do
-    {:noreply, assign(socket, items: data.payload.items)}
+  def handle_info(%{event: "update", payload: %{items: items}}, socket) do
+    {:noreply, assign(socket, items: items)}
   end
 
   def checked?(item) do

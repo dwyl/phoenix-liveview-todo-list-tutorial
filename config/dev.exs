@@ -1,4 +1,4 @@
-use Mix.Config
+import Mix.Config
 
 # Configure your database
 config :live_view_todo, LiveViewTodo.Repo,

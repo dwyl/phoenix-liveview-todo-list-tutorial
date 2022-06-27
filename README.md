@@ -1223,12 +1223,61 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#9-footer-navigation
 
 ### 10. Clear Completed
 
+To clear completed items the liveview needs to udpate all items with a status
+defined as 1 to 2.
+
+First we update the "clear completd" button to use the `phx-click` binding to
+create a new event, in `lib/live_view_todo_web/live/page_live.html.heex` update
+the button to:
+
+```html
+<button class="clear-completed" style="display: block;" phx-click="clear-completed">Clear completed</button>
+```
+
+In `lib/live_view_todo_web/live/page_live.ex` when then define a new `handle_event` function:
+
+```elixir
+  @impl true
+  def handle_event("clear-completed", _data, socket) do
+    Item.clear_completed()
+    items = Item.list_items()
+    {:noreply, assign(socket, items: items)}
+  end
+```
+
+Finally we need to define `Item.clear_completed/0` function in `lib/live_view_todo/item.ex`:
+
+```elixir
+  def clear_completed() do
+    completed_items = from(i in Item, where: i.status == 1)
+    Repo.update_all(completed_items, set: [status: 2])
+  end
+```
+
+We can also add the following test to make sure completed items are removed:
+
+```elixir
+  test "clear completed items", %{conn: conn} do
+    {:ok, item1} = Item.create_item(%{"text" => "Learn Elixir"})
+    {:ok, _item2} = Item.create_item(%{"text" => "Learn Phoenix"})
+
+    # complete item1
+    {:ok, view, _html} = live(conn, "/")
+    assert render(view) =~ "Learn Elixir"
+    assert render(view) =~ "Learn Phoenix"
+
+    assert render_click(view, :toggle, %{"id" => item1.id, "value" => 1})
+
+    view = render_click(view, "clear-completed", %{})
+    assert view =~ "Learn Phoenix"
+    refute view =~ "Learn Elixir"
+  end
+```
+
+
 Borrow from:
 https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 
-<br />
-
-<hr />
 
 ### 11. Deploy to Heroku
 

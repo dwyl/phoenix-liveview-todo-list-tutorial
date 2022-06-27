@@ -55,7 +55,7 @@
             <%= live_patch "Completed", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"}) %>
   		</li>
   	</ul>
-  	<button class="clear-completed" style="display: block;">Clear completed</button>
+  	<button class="clear-completed" style="display: block;" phx-click="clear-completed">Clear completed</button>
   </footer>
   <% end %>
 </section>

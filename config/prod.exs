@@ -1,4 +1,4 @@
-use Mix.Config
+import Mix.Config
 
 # log everything so we can debug
 config :logger, level: :info

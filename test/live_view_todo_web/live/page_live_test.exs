@@ -36,6 +36,29 @@ defmodule LiveViewTodoWeb.PageLiveTest do
     assert updated_item.status == 2
   end
 
+  test "Filter item", %{conn: conn} do
+    {:ok, item1} = Item.create_item(%{"text" => "Learn Elixir"})
+    {:ok, _item2} = Item.create_item(%{"text" => "Learn Phoenix"})
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_click(view, :toggle, %{"id" => item1.id, "value" => 1}) =~ "completed"
+
+    # list only completed items
+    {:ok, view, _html} = live(conn, "/?filter_by=completed")
+    assert render(view) =~ "Learn Elixir"
+    refute render(view) =~ "Learn Phoenix"
+
+    # list only active items
+    {:ok, view, _html} = live(conn, "/?filter_by=active")
+    refute render(view) =~ "Learn Elixir"
+    assert render(view) =~ "Learn Phoenix"
+
+    # list all items
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
+    assert render(view) =~ "Learn Elixir"
+    assert render(view) =~ "Learn Phoenix"
+  end
+
   # This test is just to ensure coverage of the handle_info/2 function
   # It's not required but we like to have 100% coverage.
   # https://stackoverflow.com/a/60852290/1148249

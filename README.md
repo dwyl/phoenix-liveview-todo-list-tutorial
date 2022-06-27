@@ -1142,6 +1142,80 @@ but make it `LiveView` friendly.
 
 ### 9. Footer Navigation
 
+In this section we'll update the footer links "All", "Active" and "Completed"
+to make sure the `LiveView` displays only the `items` with the correct status.
+
+We first need to update the templates `lib/live_view_todo_web/live/page_live.html.heex`
+to use the [`live_patch/2`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Helpers.html#live_patch/2)
+function. This function allows `LiveView` to manage the navigation without having 
+to reload the page:
+
+```html
+<%= live_patch "All", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "all"}) %>
+<%= live_patch "Active", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "active"}) %>A
+<%= live_patch "Completed", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"}) %>
+```
+
+The `filter_by` query parameters can have the "all", "active" or "completed" value.
+
+We then define a new `handle_params` function in `lib/live_view_todo_web/live/page_live.ex`:
+
+```elixir
+  @impl true
+  def handle_params(params, _url, socket) do
+    items = Item.list_items()
+
+    case params["filter_by"] do
+      "completed" ->
+        completed = Enum.filter(items, &(&1.status == 1))
+        {:noreply, assign(socket, items: completed)}
+
+      "active" ->
+        active = Enum.filter(items, &(&1.status == 0))
+        {:noreply, assign(socket, items: active)}
+
+      _ ->
+        {:noreply, assign(socket, items: items)}
+    end
+  end
+```
+
+`live_patch` links will call this function to handle the navigation.
+The `filter_by` value is checked and the list of `items` is filtered.
+The socket is then updated using `assign` with the filter list.
+
+Finally we can add a test to make sure only the correct `items` are displayed.
+In `test/live_view_todo_web/live/page_live_test.exs` add:
+
+```elixir
+  test "Filter item", %{conn: conn} do
+    {:ok, item1} = Item.create_item(%{"text" => "Learn Elixir"})
+    {:ok, _item2} = Item.create_item(%{"text" => "Learn Phoenix"})
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_click(view, :toggle, %{"id" => item1.id, "value" => 1}) =~ "completed"
+
+    # list only completed items
+    {:ok, view, _html} = live(conn, "/?filter_by=completed")
+    assert render(view) =~ "Learn Elixir"
+    refute render(view) =~ "Learn Phoenix"
+
+    # list only active items
+    {:ok, view, _html} = live(conn, "/?filter_by=active")
+    refute render(view) =~ "Learn Elixir"
+    assert render(view) =~ "Learn Phoenix"
+
+    # list all items
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
+    assert render(view) =~ "Learn Elixir"
+    assert render(view) =~ "Learn Phoenix"
+  end
+```
+
+Two items are created and one is marked as completed.
+The view is then rendered multiple times to verify the `filter_by` param
+display the correct item
+
 Borrow from:
 https://github.com/dwyl/phoenix-todo-list-tutorial#9-footer-navigation
 

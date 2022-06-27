@@ -42,6 +42,24 @@ defmodule LiveViewTodoWeb.PageLive do
     {:noreply, assign(socket, items: items)}
   end
 
+  @impl true
+  def handle_params(params, _url, socket) do
+    items = Item.list_items()
+
+    case params["filter_by"] do
+      "completed" ->
+        completed = Enum.filter(items, &(&1.status == 1))
+        {:noreply, assign(socket, items: completed)}
+
+      "active" ->
+        active = Enum.filter(items, &(&1.status == 0))
+        {:noreply, assign(socket, items: active)}
+
+      _ ->
+        {:noreply, assign(socket, items: items)}
+    end
+  end
+
   def checked?(item) do
     not is_nil(item.status) and item.status > 0
   end

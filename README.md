@@ -1143,11 +1143,11 @@ but make it `LiveView` friendly.
 ### 9. Footer Navigation
 
 In this section we'll update the footer links "All", "Active" and "Completed"
-to make sure the LiveView diplay only the items with the correct status.
+to make sure the `LiveView` displays only the `items` with the correct status.
 
 We first need to update the templates `lib/live_view_todo_web/live/page_live.html.heex`
 to use the [`live_patch/2`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Helpers.html#live_patch/2)
-function. This function allows LiveView to manage the navigation without having 
+function. This function allows `LiveView` to manage the navigation without having 
 to reload the page:
 
 ```html
@@ -1181,10 +1181,10 @@ We then define a new `handle_params` function in `lib/live_view_todo_web/live/pa
 ```
 
 `live_patch` links will call this function to handle the navigation.
-The `filter_by` value is checked and the list of items is filtered.
+The `filter_by` value is checked and the list of `items` is filtered.
 The socket is then updated using `assign` with the filter list.
 
-Finally we can add a test to make sure only the correct items are displayed.
+Finally we can add a test to make sure only the correct `items` are displayed.
 In `test/live_view_todo_web/live/page_live_test.exs` add:
 
 ```elixir

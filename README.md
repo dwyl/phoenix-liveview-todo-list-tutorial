@@ -1134,9 +1134,112 @@ so you will have a head-start.
 
 ### 8. Editing Todo `item.text`
 
-We need to borrow from:
-https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
-but make it `LiveView` friendly.
+For editing an item we'll continue to use LiveView and:
+- 1. Display the "edit" form when an item is clicked on
+- 2. On submit, LiveView will handle the `update-item` event to udpate the item
+
+First we want to update the html to display the form when an item is edited:
+
+update `lib/live_view_todo_web/live/page_live.html.heex` to display the form:
+
+```html
+  <ul class="todo-list" id="todo-list-items">
+    <%= for item <- @items do %>
+      <%= if item.id == @editing do %>
+        <form phx-submit="update-item" id="form-update">
+          <input
+            id="update_todo"
+            class="new-todo"
+            type="text"
+            name="text"
+            required="required"
+            value={item.text}
+          />
+          <input type="hidden" name="id" value={item.id}/>
+        </form>
+      <% else %>
+      <li data-id={item.id} class={completed?(item)}>
+        <div class="view">
+          <%= if checked?(item) do %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+          <% else %>
+            <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
+          <% end %>
+          <label phx-click="edit-item" phx-value-id={item.id}><%= item.text %></label>
+          <button class="destroy" phx-click="delete" phx-value-id={item.id}></button>
+        </div>
+      </li>
+      <% end %>
+    <% end %>
+  </ul>
+```
+
+For each item we check if the `item.id` match the `@editing` value and we display
+either the `form` or the `label` value.
+
+We have added the `phx-click="edit-item"` event on the `label` which is used
+to define the `@editing` value:
+
+in `lib/live_view_todo_web/live/page_live.ex` create the logic for `edit-item` event:
+
+```elixir
+  @impl true
+  def handle_event("edit-item", data, socket) do
+    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+  end
+```
+
+We assign the `editing` value to the socket with the item's id defined by
+`phx-value-id`.
+
+Finally we can handle the `phx-submit="update-item"` event:
+
+```elixir
+  @impl true
+  def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
+    current_item = Item.get_item!(item_id)
+    Item.update_item(current_item, %{text: text})
+    items = Item.list_items()
+    socket = assign(socket, items: items, editing: nil)
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+```
+
+We update the item matching the id with the new text value and broadcast the change
+to the other connected clients.
+
+Let's update the tests to make sure the editing feature is cover:
+
+```elixir
+  test "edit item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
+             "<form phx-submit=\"update-item\" id=\"form-update\">"
+  end
+
+  test "update an item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, "update-item", %{"id" => item.id, "text" => "Learn more Elixir"}) =~
+             "Learn more Elixir"
+
+    updated_item = Item.get_item!(item.id)
+    assert updated_item.text == "Learn more Elixir"
+  end
+```
+
+The first test make sure the form is displayed when the `edit-item` click event
+is sent to the LiveView.
+The second test, make sure the item value is updated when the edit form is submitted.
+
+
+borrow from: https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
 
 <br />
 

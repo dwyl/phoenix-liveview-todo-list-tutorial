@@ -1245,6 +1245,60 @@ is sent to the LiveView.
 The second test, make sure the item value is updated when the edit form is submitted.
 
 
+#### UI enhancement
+
+We can make the UI a bit better by adding focus to the edited item using
+[Hooks](https://hexdocs.pm/phoenix_live_view/js-interop.html#client-hooks-via-phx-hook)
+
+On the template add a new attribute `phx-hook`:
+
+```html
+<input
+  id="update_todo"
+  class="new-todo"
+  type="text"
+  name="text"
+  required="required"
+  value={item.text}
+  phx-hook="FocusInputItem"
+/>
+```
+
+Then in `app.js` add the following:
+
+```js
+function focusInput(input) {
+  let end = input.value.length;
+  input.setSelectionRange(end, end);
+  input.focus();
+}
+
+
+let Hooks = {}
+Hooks.FocusInputItem = {
+  mounted() {
+    focusInput(document.getElementById("update_todo"));
+  },
+  updated() {
+    focusInput(document.getElementById("update_todo"));
+  }
+}
+```
+
+the function `focusInput` add the focus to the input and place the cursor
+at the end of the text.
+
+We use this function in the `mounted` and `updated` hooks event, `mounted` for the
+first time the input is displayed, then `updated` when the input is dispalayed
+again for editing other items.
+
+Finally we need to pass our `Hooks` object to the socket:
+
+```js
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks: Hooks })
+```
+
+
 borrow from: https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
 
 <br />

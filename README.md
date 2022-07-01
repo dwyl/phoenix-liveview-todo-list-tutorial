@@ -1134,11 +1134,12 @@ so you will have a head-start.
 
 ### 8. Editing Todo `item.text`
 
-For editing an item we'll continue to use LiveView and:
-- 1. Display the "edit" form when an item is clicked on
-- 2. On submit, LiveView will handle the `update-item` event to udpate the item
+For _editing_ an `item` we'll continue to use `LiveView` and:
 
-First we want to update the html to display the form when an item is edited:
+- 1. Display the "**edit**" form when an `item` is clicked on
+- 2. On submit, `LiveView` will handle the **`update-item`** event to **update** the `item`
+
+First we want to **update** the `html` to display the `form` when an `item` is edited:
 
 update `lib/live_view_todo_web/live/page_live.html.heex` to display the form:
 
@@ -1174,7 +1175,10 @@ update `lib/live_view_todo_web/live/page_live.html.heex` to display the form:
   </ul>
 ```
 
-For each item we check if the `item.id` match the `@editing` value and we display
+For each `item` we check 
+if the `item.id` 
+matches the `@editing` value 
+and we display
 either the `form` or the `label` value.
 
 We have added the `phx-click="edit-item"` event on the `label` which is used
@@ -1189,7 +1193,9 @@ in `lib/live_view_todo_web/live/page_live.ex` create the logic for `edit-item` e
   end
 ```
 
-We assign the `editing` value to the socket with the item's id defined by
+We assign the `editing` value 
+to the socket with the `item.id` 
+defined by
 `phx-value-id`.
 
 Finally we can handle the `phx-submit="update-item"` event:
@@ -1209,7 +1215,7 @@ Finally we can handle the `phx-submit="update-item"` event:
 We update the item matching the id with the new text value and broadcast the change
 to the other connected clients.
 
-Let's update the tests to make sure the editing feature is cover:
+Let's update the tests to make sure the editing feature is covered:
 
 ```elixir
   test "edit item", %{conn: conn} do
@@ -1234,7 +1240,7 @@ Let's update the tests to make sure the editing feature is cover:
   end
 ```
 
-The first test make sure the form is displayed when the `edit-item` click event
+The first test ensures the form is displayed when the `edit-item` event is triggered
 is sent to the LiveView.
 The second test, make sure the item value is updated when the edit form is submitted.
 

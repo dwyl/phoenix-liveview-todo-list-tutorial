@@ -36,6 +36,27 @@ defmodule LiveViewTodoWeb.PageLiveTest do
     assert updated_item.status == 2
   end
 
+  test "edit item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
+             "<form phx-submit=\"update-item\" id=\"form-update\">"
+  end
+
+  test "update an item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, "update-item", %{"id" => item.id, "text" => "Learn more Elixir"}) =~
+             "Learn more Elixir"
+
+    updated_item = Item.get_item!(item.id)
+    assert updated_item.text == "Learn more Elixir"
+  end
+
   test "Filter item", %{conn: conn} do
     {:ok, item1} = Item.create_item(%{"text" => "Learn Elixir"})
     {:ok, _item2} = Item.create_item(%{"text" => "Learn Phoenix"})

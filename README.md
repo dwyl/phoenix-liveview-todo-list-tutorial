@@ -2,10 +2,10 @@
 
 # Phoenix LiveView Todo List Tutorial
 [![Elixir CI](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-todo-list-tutorial/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/actions/workflows/ci.yml)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](http://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
-[![Hex pm](http://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
+[![Hex pm](https://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)
-[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-todo-list-tutorial.svg)](http://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
+[![HitCount](https://hits.dwyl.com/dwyl/phoenix-liveview-todo-list-tutorial.svg)](https://hits.dwyl.io/dwyl/phoenix-liveview-todo-list-tutorial)
 
 **Build your _second_ App** using **Phoenix LiveView** <br />
 and _understand_ how to build real-world apps in **20 minutes** or _less_!
@@ -340,7 +340,7 @@ and save it in our project!
 ### 2.5 Save the TodoMVC CSS to `/assets/css`
 
 Visit
-http://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css <br />
+https://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css <br />
 and save the file to `/assets/css/todomvc-app.css`
 
 e.g:

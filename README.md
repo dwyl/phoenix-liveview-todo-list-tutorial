@@ -21,7 +21,45 @@ and _understand_ how to build real-world apps in **20 minutes** or _less_!
 </div>
 <br />
 
-## Why? 🤷
+- [Phoenix LiveView Todo List Tutorial](#phoenix-liveview-todo-list-tutorial)
+- [Why? 🤷](#why-)
+- [What? 💭](#what-)
+- [Who? 👤](#who-)
+  - [Prerequisites: What you Need _Before_ You Start 📝](#prerequisites-what-you-need-before-you-start-)
+- [How? 💻](#how-)
+  - [Step 0: Run the _Finished_ Todo App on your `localhost` 🏃‍](#step-0-run-the-finished-todo-app-on-your-localhost-)
+    - [Clone the Repository](#clone-the-repository)
+    - [_Download_ the Dependencies](#download-the-dependencies)
+    - [_Run_ the App](#run-the-app)
+  - [Step 1: Create the App 🆕](#step-1-create-the-app-)
+    - [Checkpoint 1a: _Run_ the _Tests_!](#checkpoint-1a-run-the-tests)
+    - [Checkpoint 1b: _Run_ the New Phoenix App!](#checkpoint-1b-run-the-new-phoenix-app)
+  - [2. Create the TodoMVC UI/UX](#2-create-the-todomvc-uiux)
+    - [2.1 Create live folder](#21-create-live-folder)
+    - [2.2 Update the Root Layout](#22-update-the-root-layout)
+    - [2.3 Create the page_live layout](#23-create-the-page_live-layout)
+    - [2.4 Update Router and controller](#24-update-router-and-controller)
+  - [2.5 Save the TodoMVC CSS to `/assets/css`](#25-save-the-todomvc-css-to-assetscss)
+  - [2.6 Import the `todomvc-app.css` in `app.scss`](#26-import-the-todomvc-appcss-in-appscss)
+  - [2.7 Update the test](#27-update-the-test)
+  - [3. Create the Todo List `items` Schema](#3-create-the-todo-list-items-schema)
+    - [3.1 Add Aliases to `item.ex`](#31-add-aliases-to-itemex)
+    - [3.2 Create Todo Item CRUD Tests](#32-create-todo-item-crud-tests)
+    - [3.3 Make the CRUD Tests _Pass_](#33-make-the-crud-tests-pass)
+  - [4. Handle Todo List `Item` Creation](#4-handle-todo-list-item-creation)
+  - [5. _Show_ the Created Todo `Items`](#5-show-the-created-todo-items)
+  - [6. Toggle the State of Todo Items](#6-toggle-the-state-of-todo-items)
+  - [7. "Delete" a Todo `item`](#7-delete-a-todo-item)
+  - [8. Editing Todo `item.text`](#8-editing-todo-itemtext)
+    - [UI enhancement](#ui-enhancement)
+  - [9. Footer Navigation](#9-footer-navigation)
+  - [10. Clear Completed](#10-clear-completed)
+  - [11. Deploy to Heroku](#11-deploy-to-heroku)
+    - [`tl;dr`](#tldr)
+
+<br />
+
+# Why? 🤷
 
 `Phoenix` is already an awesome web framework
 that helps teams build reliable Apps & APIs fast. <br />
@@ -32,12 +70,12 @@ to the next level of elegance and simplicity.
 with a **native** (_no lag or refresh_) experience
 without writing `JavaScript`.
 
-## What? 💭
+# What? 💭
 
 This tutorial builds a Todo List from scratch
 using Phoenix LiveView in _less_ than 20 minutes.
 
-## Who? 👤
+# Who? 👤
 
 This tutorial is aimed at LiveView beginners
 who want to _understand_ how everything works
@@ -47,7 +85,7 @@ If you are completely new to Phoenix and LiveView,
 we recommend you follow the **LiveView _Counter_ Tutorial**:
 https://github.com/dwyl/phoenix-liveview-counter-tutorial
 
-### Prerequisites: What you Need _Before_ You Start 📝
+## Prerequisites: What you Need _Before_ You Start 📝
 
 This tutorial expects you have a `Elixir`, `Phoenix` and `Node.js` installed.
 If you don't already have them on your computer,
@@ -56,14 +94,14 @@ https://github.com/dwyl/learn-elixir#installation
 and
 https://hexdocs.pm/phoenix/installation.html#phoenix
 
-## How? 💻
+# How? 💻
 
 > 💡 You can also try the version deployed to Heroku:
 > https://live-view-todo.herokuapp.com/
 
 <br />
 
-### Step 0: Run the _Finished_ Todo App on your `localhost` 🏃‍
+## Step 0: Run the _Finished_ Todo App on your `localhost` 🏃‍
 
 Before you attempt to _build_ the todo list app,
 we suggest that you clone and _run_
@@ -71,7 +109,7 @@ the complete app on your `localhost`. <br />
 That way you _know_ it's working
 without much effort/time expended.
 
-#### Clone the Repository
+### Clone the Repository
 
 On your `localhost`,
 run the following command to clone the repo
@@ -82,7 +120,7 @@ git clone https://github.com/dwyl/phoenix-liveview-todo-list-tutorial.git
 cd phoenix-liveview-todo-list-tutorial
 ```
 
-#### _Download_ the Dependencies
+### _Download_ the Dependencies
 
 Install the dependencies by running the command:
 
@@ -96,7 +134,7 @@ be
 [patient](https://user-images.githubusercontent.com/194400/76169853-58139380-6174-11ea-8e03-4011815758d0.png).
 😉
 
-#### _Run_ the App
+### _Run_ the App
 
 Start the Phoenix server by running the command:
 
@@ -124,7 +162,7 @@ and a clear picture of where we are headed, it's time to _build_ it!
 
 <br />
 
-### Step 1: Create the App 🆕
+## Step 1: Create the App 🆕
 
 In your terminal run the following `mix` command
 to generate the new Phoenix app:
@@ -145,7 +183,7 @@ Fetch and install dependencies? [Yn]
 Type <kbd>Y</kbd> followed by the <kbd>Enter</kbd> key.
 That will download all the necessary dependencies.
 
-#### Checkpoint 1a: _Run_ the _Tests_!
+### Checkpoint 1a: _Run_ the _Tests_!
 
 In your terminal, go into the newly created app folder using:
 
@@ -174,7 +212,7 @@ It's a good way to confirm everything is working.
 
 <br />
 
-#### Checkpoint 1b: _Run_ the New Phoenix App!
+### Checkpoint 1b: _Run_ the New Phoenix App!
 
 Run the server by executing this command:
 
@@ -193,12 +231,12 @@ in your web browser.
 
 <br />
 
-### 2. Create the TodoMVC UI/UX
+## 2. Create the TodoMVC UI/UX
 
 As we saw in the previous step, our App looks like a fresh Phoenix App.
 Let's make it look like a todo list.
 
-#### 2.1 Create live folder
+### 2.1 Create live folder
 
 By convention Phoenix uses a `live` folder to manage the LiveView files.
 Create this folder at `lib/live_view_todo_web/live`.
@@ -221,7 +259,7 @@ When using LiveView, the controller is required to implement
 the [`mount`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) function,
 the entry point of the live page.
 
-#### 2.2 Update the Root Layout
+### 2.2 Update the Root Layout
 
 Open the `lib/live_view_todo_web/templates/layout/root.html.heex` file
 and remove the `<header>` section
@@ -244,7 +282,7 @@ such that the contents file is the following:
   </body>
 </html>
 ```
-#### 2.3 Create the page_live layout
+### 2.3 Create the page_live layout
 
 Create the `lib/live_view_todo_web/live/page_live.html.heex` layout file and
 add the following content:
@@ -300,7 +338,7 @@ add the following content:
 > https://github.com/dwyl/phoenix-todo-list-tutorial#3-create-the-todomvc-uiux
 > our `Phoenix` (_without `LiveView`_) Todo List Tutorial.
 
-#### 2.4 Update Router and controller
+### 2.4 Update Router and controller
 
 in `lib/live_view_todo_web/router.ex` file
 change `get` to `live` and rename the controller
@@ -337,7 +375,7 @@ That's obviously not what we want,
 so let's get the TodoMVC `CSS`
 and save it in our project!
 
-### 2.5 Save the TodoMVC CSS to `/assets/css`
+## 2.5 Save the TodoMVC CSS to `/assets/css`
 
 Visit
 https://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css <br />
@@ -348,7 +386,7 @@ e.g:
 
 <br />
 
-### 2.6 Import the `todomvc-app.css` in `app.scss`
+## 2.6 Import the `todomvc-app.css` in `app.scss`
 
 Open the `assets/css/app.scss` file and replace it with the following:
 
@@ -375,7 +413,7 @@ you should see the following:
 Now that we have the layout looking like we want it,
 we can move onto the fun part of making it _work_.
 
-### 2.7 Update the test
+## 2.7 Update the test
 
 Now that we have a functioning LiveView page, let's create the tests under
 `test/live_view_todo_web/live` folder. Create the file 
@@ -417,7 +455,7 @@ Everything passing, lets get back to building!
 
 <br />
 
-### 3. Create the Todo List `items` Schema
+## 3. Create the Todo List `items` Schema
 
 In order to _store_ the todo list `items` we need a schema.
 In your terminal run the following generator command:
@@ -456,7 +494,7 @@ Now that the schema has been created
 we can write some code
 to make the todo list functionality work.
 
-#### 3.1 Add Aliases to `item.ex`
+### 3.1 Add Aliases to `item.ex`
 
 Before we create any new functions, let's open the
 `lib/live_view_todo/item.ex`
@@ -531,7 +569,7 @@ end
 
 With those changes made, we can proceed to creating our functions.
 
-#### 3.2 Create Todo Item CRUD Tests
+### 3.2 Create Todo Item CRUD Tests
 
 The `phx.gen.schema` does not automatically create any
 ["CRUD"](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
@@ -642,7 +680,7 @@ this is just the "setup" we need to do for inserting todo item data.
 
 Let's write the functions to make the tests pass!
 
-#### 3.3 Make the CRUD Tests _Pass_
+### 3.3 Make the CRUD Tests _Pass_
 
 Open the `lib/live_view_todo/item.ex` file
 and add the following lines of code:
@@ -738,7 +776,7 @@ we can move on to the _fun_ part, building the Todo App in `LiveView`!
 
 <br />
 
-### 4. Handle Todo List `Item` Creation
+## 4. Handle Todo List `Item` Creation
 
 The first event we want to handle in our `LiveView` App is "create";
 the act of creating a new Todo List `item`.
@@ -865,7 +903,7 @@ Let's fix that next.
 
 <br />
 
-### 5. _Show_ the Created Todo `Items`
+## 5. _Show_ the Created Todo `Items`
 
 In order to _show_ the Todo `items` we are creating,
 we need to:
@@ -956,7 +994,7 @@ we can now create and _see_ our created Todo `item`:
 
 <br />
 
-### 6. Toggle the State of Todo Items
+## 6. Toggle the State of Todo Items
 
 The next piece of functionality we want in a Todo List
 is the ability to **`toggle`** the completion from "todo" to "done".
@@ -1031,7 +1069,7 @@ the test will pass.
 
 <br />
 
-### 7. "Delete" a Todo `item`
+## 7. "Delete" a Todo `item`
 
 Rather than _permanently_ deleting items which destroys history/accountability,
 we prefer to
@@ -1123,16 +1161,7 @@ You should see:
 
 <br />
 
-# `@Todo: Finish the Tutorial` (`#HelpWanted`)
-
-This tutorial already implements the _basics_.
-We need _your_ help extending it to add these last few features.
-Thankfully we have already implemented this before
-so you will have a head-start.
-
-<br />
-
-### 8. Editing Todo `item.text`
+## 8. Editing Todo `item.text`
 
 For _editing_ an `item` we'll continue to use `LiveView` and:
 
@@ -1245,7 +1274,7 @@ is sent to the LiveView.
 The second test, make sure the item value is updated when the edit form is submitted.
 
 
-#### UI enhancement
+### UI enhancement
 
 We can make the UI a bit better by adding focus to the edited item using
 [Hooks](https://hexdocs.pm/phoenix_live_view/js-interop.html#client-hooks-via-phx-hook)
@@ -1303,7 +1332,7 @@ borrow from: https://github.com/dwyl/phoenix-todo-list-tutorial#8-edit-an-item
 
 <br />
 
-### 9. Footer Navigation
+## 9. Footer Navigation
 
 In this section we'll update the footer links "All", "Active" and "Completed"
 to make sure the `LiveView` displays only the `items` with the correct status.
@@ -1384,7 +1413,7 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#9-footer-navigation
 
 <br />
 
-### 10. Clear Completed
+## 10. Clear Completed
 
 To clear completed items the liveview needs to udpate all items with a status
 defined as 1 to 2.
@@ -1442,7 +1471,7 @@ Borrow from:
 https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 
 
-### 11. Deploy to Heroku
+## 11. Deploy to Heroku
 
 Deployment is beyond the scope of this tutorial.
 But we created a _separate_
@@ -1455,7 +1484,7 @@ to view/use your app in any Web/Mobile Browser.
 e.g:
 https://liveview-todo.herokuapp.com
 
-#### `tl;dr`
+### `tl;dr`
 
 - [x] Add the build packs
 

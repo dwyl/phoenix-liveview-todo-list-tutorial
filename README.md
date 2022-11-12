@@ -1437,6 +1437,18 @@ In `lib/live_view_todo_web/live/page_live.ex` when then define a new `handle_eve
   end
 ```
 
+In `lib/live_view_todo/item.ex` we update the list_items function:
+
+```elixir
+  def list_items do
+    Item
+    |> order_by(desc: :inserted_at)
+    |> where([a], is_nil(a.status) or a.status != 2)
+    |> Repo.all()
+  end
+```
+
+
 Finally we need to define `Item.clear_completed/0` function in `lib/live_view_todo/item.ex`:
 
 ```elixir

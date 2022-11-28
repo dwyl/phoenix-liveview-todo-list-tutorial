@@ -54,7 +54,8 @@ and _understand_ how to build real-world apps in **20 minutes** or _less_!
     - [UI enhancement](#ui-enhancement)
   - [9. Footer Navigation](#9-footer-navigation)
   - [10. Clear Completed](#10-clear-completed)
-  - [11. Deploy to Heroku](#11-deploy-to-heroku)
+  - [11. Live Components](#10-liveview-components)
+  - [12. Deploy to Heroku](#11-deploy-to-heroku)
     - [`tl;dr`](#tldr)
 
 <br />
@@ -1483,7 +1484,156 @@ Borrow from:
 https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 
 
-## 11. Deploy to Heroku
+## 11. Live Components
+
+LiveView provides the Live Components feature to group UI state and events.
+In this section we're going to see how to use component for items.
+
+The first step if to create a new file `lib/live_view_todo_web/live/item_component.ex`:
+
+```elixir
+defmodule LiveViewTodoWeb.ItemComponent do
+  use LiveViewTodoWeb, :live_component
+  alias LiveViewTodo.Item
+
+  attr(:items, :list, default: [])
+
+  def render(assigns) do
+    ~H"""
+    <ul class="todo-list" id="todo-list-items">
+      <%= for item <- @items do %>
+        <%= if item.id == @editing do %>
+          <form phx-submit="update-item" id="form-update" phx-target={@myself}>
+            <input
+              id="update_todo"
+              class="new-todo"
+              type="text"
+              name="text"
+              required="required"
+              value={item.text}
+              phx-hook="FocusInputItem"
+            />
+            <input type="hidden" name="id" value={item.id} />
+          </form>
+        <% else %>
+          <li data-id={item.id} class={completed?(item)}>
+            <div class="view">
+              <input
+                class="toggle"
+                type="checkbox"
+                phx-value-id={item.id}
+                phx-click="toggle"
+                checked={checked?(item)}
+                phx-target={@myself}
+                id={"item-#{item.id}"}
+              />
+              <label
+                phx-click="edit-item"
+                phx-value-id={item.id}
+                phx-target={@myself}
+                id={"edit-item-#{item.id}"}
+              >
+                <%= item.text %>
+              </label>
+              <button
+                class="destroy"
+                phx-click="delete"
+                phx-value-id={item.id}
+                phx-target={@myself}
+                id={"delete-item-#{item.id}"}
+              >
+              </button>
+            </div>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+    """
+  end
+end
+```
+
+We have defined the `render` function which display the list of items.
+Note that we have also defined the `attr` function. This tells us that we need
+to pass the `:items` attribute when calling our component.
+
+In `lib/live_view_todo_web/live/page_live.html.heex` we can already call our component:
+
+```heex
+<section class="main" style="display: block;">
+  <input id="toggle-all" class="toggle-all" type="checkbox" />
+  <label for="toggle-all">Mark all as complete</label>
+  <.live_component
+    module={LiveViewTodoWeb.ItemComponent}
+    id="cpn"
+    items={@items}
+    editing={@editing}
+  />
+</section>
+```
+
+Now that we have moved the `ul` and `li` tags to the render function we can 
+directly use `<.live_component/>`. Make sure to define the `module` and `id`.
+We can also see that we have the `items` and `editing` attribute too.
+
+Finally we can move the `handle_event` linked to the items in `live_page.ex`
+to the `item_component.ex` file:
+
+```elixir
+  def render(assigns) do
+  ...
+  end
+
+  @impl true
+  def handle_event("toggle", data, socket) do
+    status = if Map.has_key?(data, "value"), do: 1, else: 0
+    item = Item.get_item!(Map.get(data, "id"))
+
+    Item.update_item(item, %{id: item.id, status: status})
+
+    socket = assign(socket, items: Item.list_items(), active: %Item{})
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit-item", data, socket) do
+    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+  end
+
+  @impl true
+  def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
+    current_item = Item.get_item!(item_id)
+    Item.update_item(current_item, %{text: text})
+    items = Item.list_items()
+    socket = assign(socket, items: items, editing: nil)
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", data, socket) do
+    Item.delete_item(Map.get(data, "id"))
+    socket = assign(socket, items: Item.list_items(), active: %Item{})
+    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  def checked?(item) do
+    not is_nil(item.status) and item.status > 0
+  end
+
+  def completed?(item) do
+    if not is_nil(item.status) and item.status > 0, do: "completed", else: ""
+  end
+```
+
+More documentation:
+
+- https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html
+- https://elixirschool.com/blog/live-view-live-component
+
+## 12. Deploy to Heroku
 
 Deployment is beyond the scope of this tutorial.
 But we created a _separate_

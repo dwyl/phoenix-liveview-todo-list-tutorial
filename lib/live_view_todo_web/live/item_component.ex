@@ -26,28 +26,30 @@ defmodule LiveViewTodoWeb.ItemComponent do
         <% else %>
           <li data-id={item.id} class={completed?(item)}>
             <div class="view">
-              <%= if checked?(item) do %>
-                <input
-                  class="toggle"
-                  type="checkbox"
-                  phx-value-id={item.id}
-                  phx-click="toggle"
-                  checked
-                  phx-target={@myself}
-                />
-              <% else %>
-                <input
-                  class="toggle"
-                  type="checkbox"
-                  phx-value-id={item.id}
-                  phx-click="toggle"
-                  phx-target={@myself}
-                />
-              <% end %>
-              <label phx-click="edit-item" phx-value-id={item.id} phx-target={@myself}>
+              <input
+                class="toggle"
+                type="checkbox"
+                phx-value-id={item.id}
+                phx-click="toggle"
+                checked={checked?(item)}
+                phx-target={@myself}
+                id={"item-#{item.id}"}
+              />
+              <label
+                phx-click="edit-item"
+                phx-value-id={item.id}
+                phx-target={@myself}
+                id={"edit-item-#{item.id}"}
+              >
                 <%= item.text %>
               </label>
-              <button class="destroy" phx-click="delete" phx-value-id={item.id} phx-target={@myself}>
+              <button
+                class="destroy"
+                phx-click="delete"
+                phx-value-id={item.id}
+                phx-target={@myself}
+                id={"delete-item-#{item.id}"}
+              >
               </button>
             </div>
           </li>
@@ -61,7 +63,9 @@ defmodule LiveViewTodoWeb.ItemComponent do
   def handle_event("toggle", data, socket) do
     status = if Map.has_key?(data, "value"), do: 1, else: 0
     item = Item.get_item!(Map.get(data, "id"))
+
     Item.update_item(item, %{id: item.id, status: status})
+
     socket = assign(socket, items: Item.list_items(), active: %Item{})
     LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}

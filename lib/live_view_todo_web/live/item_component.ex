@@ -5,6 +5,7 @@ defmodule LiveViewTodoWeb.ItemComponent do
   #   {:ok, socket}
   # end
   attr :items, :list, default: []
+  attr :bob, :string, required: true
 
   def checked?(item) do
     not is_nil(item.status) and item.status > 0

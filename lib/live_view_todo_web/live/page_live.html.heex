@@ -1,6 +1,6 @@
 <section class="todoapp">
   <header class="header">
-  	<h1>Todos</h1>
+    <h1>Todos</h1>
     <form phx-submit="create" id="form">
       <input
         id="new_todo"
@@ -15,35 +15,49 @@
   </header>
 
   <section class="main" style="display: block;">
-    <input id="toggle-all" class="toggle-all" type="checkbox">
+    <input id="toggle-all" class="toggle-all" type="checkbox" />
     <label for="toggle-all">Mark all as complete</label>
-    <.live_component module={LiveViewTodoWeb.ItemComponent} id="cpn" items={@items} editing={@editing}/>
+    <.live_component
+      module={LiveViewTodoWeb.ItemComponent}
+      id="cpn"
+      items={@items}
+      editing={@editing}
+    />
   </section>
 
   <%= if length(@items) > 0 do %>
-  <footer class="footer" style="display: block;">
-  	<span class="todo-count">
-      <strong>
-        <%= Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) %>
-      </strong>
-      <%= if Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) == 1 do %>
-        item
-      <% else %>
-        items
-      <% end %>
-      left</span>
-  	<ul class="filters">
-  		<li>
-            <%= live_patch "All", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "all"}) %>
-  		</li>
-  		<li>
-            <%= live_patch "Active", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "active"}) %>
-  		</li>
-  		<li>
-            <%= live_patch "Completed", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"}) %>
-  		</li>
-  	</ul>
-  	<button class="clear-completed" style="display: block;" phx-click="clear-completed">Clear completed</button>
-  </footer>
+    <footer class="footer" style="display: block;">
+      <span class="todo-count">
+        <strong>
+          <%= Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) %>
+        </strong>
+        <%= if Enum.count(Enum.filter(@items, fn i -> i.status != 1 end)) == 1 do %>
+          item
+        <% else %>
+          items
+        <% end %>
+        left
+      </span>
+      <ul class="filters">
+        <li>
+          <%= live_patch("All",
+            to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "all"})
+          ) %>
+        </li>
+        <li>
+          <%= live_patch("Active",
+            to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "active"})
+          ) %>
+        </li>
+        <li>
+          <%= live_patch("Completed",
+            to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"})
+          ) %>
+        </li>
+      </ul>
+      <button class="clear-completed" style="display: block;" phx-click="clear-completed">
+        Clear completed
+      </button>
+    </footer>
   <% end %>
 </section>

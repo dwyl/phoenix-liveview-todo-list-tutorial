@@ -27,7 +27,7 @@ defmodule LiveViewTodoWeb.PageLiveTest do
     assert item.status == 0
 
     {:ok, view, _html} = live(conn, "/")
-    view |> element("#delete-item-#{item.id}") |> render_click()
+    assert view |> element("#delete-item-#{item.id}") |> render_click()
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.status == 2
@@ -44,7 +44,7 @@ defmodule LiveViewTodoWeb.PageLiveTest do
     {:ok, item} = Item.create_item(%{"text" => "Learn Elixir"})
 
     {:ok, view, _html} = live(conn, "/")
-    view |> element("#edit-item-#{item.id}") |> render_click()
+    assert view |> element("#edit-item-#{item.id}") |> render_click()
 
     assert view
            |> form("#form-update", %{"id" => item.id, "text" => "Learn more Elixir"})

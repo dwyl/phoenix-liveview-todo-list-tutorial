@@ -1489,7 +1489,10 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 LiveView provides the Live Components feature to group UI state and events.
 In this section we're going to see how to use component for items.
 
-The first step if to create a new file `lib/live_view_todo_web/live/item_component.ex`:
+The first step is to create a new file: 
+`lib/live_view_todo_web/live/item_component.ex`
+
+With the following code:
 
 ```elixir
 defmodule LiveViewTodoWeb.ItemComponent do

@@ -45,7 +45,7 @@ defmodule LiveViewTodoWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {LiveViewTodoWeb.LayoutView, "live.html"}
+        layout: {LiveViewTodoWeb.LayoutView, :live}
 
       unquote(view_helpers())
     end
@@ -90,6 +90,7 @@ defmodule LiveViewTodoWeb do
       import LiveViewTodoWeb.ErrorHelpers
       import LiveViewTodoWeb.Gettext
       alias LiveViewTodoWeb.Router.Helpers, as: Routes
+      import Phoenix.Component
     end
   end
 

@@ -975,7 +975,7 @@ We need to define the functions in
 
 ```elixir
 def checked?(item) do
-  is_nil(item.status) and item.status > 0
+  not is_nil(item.status) and item.status > 0
 end
 
 def completed?(item) do
@@ -1082,7 +1082,7 @@ Open
 and add the following test to it:
 
 ```elixir
-test "delete_item/1 soft-deltes an item" do
+test "delete_item/1 soft-deletes an item" do
   item = item_fixture()
   assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
   assert deleted_item.status == 2

@@ -67,7 +67,8 @@ defmodule LiveViewTodoWeb.ItemComponent do
     Item.update_item(item, %{id: item.id, status: status})
 
     socket = assign(socket, items: Item.list_items(), active: %Item{})
-    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodoWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+
     {:noreply, socket}
   end
 

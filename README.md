@@ -1060,10 +1060,13 @@ def handle_event("toggle", data, socket) do
   item = Item.get_item!(Map.get(data, "id"))
   Item.update_item(item, %{id: item.id, status: status})
   socket = assign(socket, items: Item.list_items(), active: %Item{})
-  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  LiveViewTodoWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
   {:noreply, socket}
 end
 ```
+
+Note that we are using `broadcast/3` instead of `broadcast_from/4` to make
+sure the count of items left is updated for the client itself.
 
 Once you've saved the file,
 the test will pass.

@@ -1,7 +1,8 @@
 <div align="center">
 
 # Phoenix LiveView Todo List Tutorial
-[![Elixir CI](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-todo-list-tutorial/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/actions/workflows/ci.yml)
+
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/phoenix-liveview-todo-list-tutorial/ci.yml?label=build&style=flat-square&branch=main)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-todo-list-tutorial/master.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-todo-list-tutorial?branch=master)
 [![Hex pm](https://img.shields.io/hexpm/v/phoenix_live_view.svg?style=flat-square)](https://hex.pm/packages/phoenix_live_view)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial/issues)

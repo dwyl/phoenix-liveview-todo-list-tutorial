@@ -45,6 +45,7 @@ defmodule LiveViewTodo.MixProject do
       {:ecto_sql, "~> 3.9.0"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_view, "~> 0.18"},
+      {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

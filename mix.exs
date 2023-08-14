@@ -57,7 +57,7 @@ defmodule LiveViewTodo.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
       # track test coverage:  https://github.com/parroty/excoveralls
-      {:excoveralls, "~> 0.16.0", only: [:test, :dev]}
+      {:excoveralls, "~> 0.17.0", only: [:test, :dev]}
     ]
   end
 

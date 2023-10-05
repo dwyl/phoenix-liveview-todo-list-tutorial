@@ -8,7 +8,7 @@ defmodule LiveViewTodoWeb.PageLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic)
-    {:ok, assign(socket, items: Item.list_items(), editing: nil)}
+    {:ok, assign(socket, items: Item.list_items(), editing: nil, tab: "all")}
   end
 
   @impl true
@@ -38,14 +38,14 @@ defmodule LiveViewTodoWeb.PageLive do
     case params["filter_by"] do
       "completed" ->
         completed = Enum.filter(items, &(&1.status == 1))
-        {:noreply, assign(socket, items: completed)}
+        {:noreply, assign(socket, items: completed, tab: "completed")}
 
       "active" ->
         active = Enum.filter(items, &(&1.status == 0))
-        {:noreply, assign(socket, items: active)}
+        {:noreply, assign(socket, items: active, tab: "active")}
 
       _ ->
-        {:noreply, assign(socket, items: items)}
+        {:noreply, assign(socket, items: items, tab: "all")}
     end
   end
 end

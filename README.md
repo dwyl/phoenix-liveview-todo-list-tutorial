@@ -243,7 +243,7 @@ Let's make it look like a todo list.
 By convention Phoenix uses a `live` folder to manage the LiveView files.
 Create this folder at `lib/live_view_todo_web/live`.
 
-Next we can create the `PageLive` controller module. Create the 
+Next we can create the `PageLive` controller module. Create the
 `lib/live_view_todo_web/live/page_live.ex` and add the following content:
 
 ```elixir
@@ -257,7 +257,7 @@ defmodule LiveViewTodoWeb.PageLive do
 end
 ```
 
-When using LiveView, the controller is required to implement 
+When using LiveView, the controller is required to implement
 the [`mount`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3) function,
 the entry point of the live page.
 
@@ -346,7 +346,7 @@ in `lib/live_view_todo_web/router.ex` file
 change `get` to `live` and rename the controller
 `PageController` to `PageLive`
 
-from: 
+from:
 
 ```elixir
  scope "/", LiveViewTodoWeb do
@@ -418,7 +418,7 @@ we can move onto the fun part of making it _work_.
 ## 2.7 Update the test
 
 Now that we have a functioning LiveView page, let's create the tests under
-`test/live_view_todo_web/live` folder. Create the file 
+`test/live_view_todo_web/live` folder. Create the file
 `test/live_view_todo_web/live/page_live_test.exs` and add the following:
 
 ```elixir
@@ -919,7 +919,7 @@ Let's start by updating the `mount/3` function in
 ```elixir
   def mount(_params, _session, socket) do
     # subscribe to the channel
-    if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic) 
+    if connected?(socket), do: LiveViewTodoWeb.Endpoint.subscribe(@topic)
     {:ok, assign(socket, items: Item.list_items())} # add items to assigns
   end
 ```
@@ -1148,7 +1148,7 @@ we need to add the following `handle_event/3` handler to `page_live.ex`:
 def handle_event("delete", data, socket) do
   Item.delete_item(Map.get(data, "id"))
   socket = assign(socket, items: Item.list_items(), active: %Item{})
-  LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+  LiveViewTodoWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
   {:noreply, socket}
 end
 ```
@@ -1209,9 +1209,9 @@ update `lib/live_view_todo_web/live/page_live.html.heex` to display the form:
   </ul>
 ```
 
-For each `item` we check 
-if the `item.id` 
-matches the `@editing` value 
+For each `item` we check
+if the `item.id`
+matches the `@editing` value
 and we display
 either the `form` or the `label` value.
 
@@ -1227,8 +1227,8 @@ in `lib/live_view_todo_web/live/page_live.ex` create the logic for `edit-item` e
   end
 ```
 
-We assign the `editing` value 
-to the socket with the `item.id` 
+We assign the `editing` value
+to the socket with the `item.id`
 defined by
 `phx-value-id`.
 
@@ -1343,14 +1343,14 @@ In this section we'll update the footer links "All", "Active" and "Completed"
 to make sure the `LiveView` displays only the `items` with the correct status.
 
 We first need to update the templates `lib/live_view_todo_web/live/page_live.html.heex`
-to use the [`live_patch/2`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Helpers.html#live_patch/2)
-function. This function allows `LiveView` to manage the navigation without having 
+to use the [`link`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#link/1)
+component. This component allows `LiveView` to manage the navigation without having
 to reload the page:
 
 ```html
-<%= live_patch "All", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "all"}) %>
-<%= live_patch "Active", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "active"}) %>A
-<%= live_patch "Completed", to: Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"}) %>
+<.link patch={Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "all"})}>All</.link>
+<.link patch={Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "active"})}>Active</.link>
+<.link patch={Routes.live_path(@socket, LiveViewTodoWeb.PageLive, %{filter_by: "completed"})}>Completed</.link>
 ```
 
 The `filter_by` query parameters can have the "all", "active" or "completed" value.
@@ -1365,14 +1365,14 @@ We then define a new `handle_params` function in `lib/live_view_todo_web/live/pa
     case params["filter_by"] do
       "completed" ->
         completed = Enum.filter(items, &(&1.status == 1))
-        {:noreply, assign(socket, items: completed)}
+        {:noreply, assign(socket, items: completed, tab: "completed")}
 
       "active" ->
         active = Enum.filter(items, &(&1.status == 0))
-        {:noreply, assign(socket, items: active)}
+        {:noreply, assign(socket, items: active, tab: "active")}
 
       _ ->
-        {:noreply, assign(socket, items: items)}
+        {:noreply, assign(socket, items: items, tab: "all")}
     end
   end
 ```
@@ -1493,7 +1493,7 @@ https://github.com/dwyl/phoenix-todo-list-tutorial#10-clear-completed
 LiveView provides the Live Components feature to group UI state and events.
 In this section we're going to see how to use component for items.
 
-The first step is to create a new file: 
+The first step is to create a new file:
 `lib/live_view_todo_web/live/item_component.ex`
 
 With the following code:
@@ -1579,7 +1579,7 @@ In `lib/live_view_todo_web/live/page_live.html.heex` we can already call our com
 </section>
 ```
 
-Now that we have moved the `ul` and `li` tags to the render function we can 
+Now that we have moved the `ul` and `li` tags to the render function we can
 directly use `<.live_component/>`. Make sure to define the `module` and `id`.
 We can also see that we have the `items` and `editing` attribute too.
 
@@ -1622,7 +1622,7 @@ to the `item_component.ex` file:
   def handle_event("delete", data, socket) do
     Item.delete_item(Map.get(data, "id"))
     socket = assign(socket, items: Item.list_items(), active: %Item{})
-    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodoWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 

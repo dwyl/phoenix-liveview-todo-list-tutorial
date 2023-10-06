@@ -91,7 +91,7 @@ defmodule LiveViewTodoWeb.ItemComponent do
   def handle_event("delete", data, socket) do
     Item.delete_item(Map.get(data, "id"))
     socket = assign(socket, items: Item.list_items(), active: %Item{})
-    LiveViewTodoWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    LiveViewTodoWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 

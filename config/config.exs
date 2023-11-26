@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-import Mix.Config
+import Config
 
 config :live_view_todo,
   ecto_repos: [LiveViewTodo.Repo]

@@ -1,4 +1,4 @@
-import Mix.Config
+import Config
 
 # Configure your database
 #
@@ -8,8 +8,6 @@ import Mix.Config
 config :live_view_todo, LiveViewTodo.Repo,
   database: Path.expand("../live_view_todo_test.db", Path.dirname(__ENV__.file)),
   pool_size: 5,
-
-
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
@@ -19,4 +17,4 @@ config :live_view_todo, LiveViewTodoWeb.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning

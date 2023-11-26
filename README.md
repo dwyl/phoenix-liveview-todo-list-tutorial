@@ -434,7 +434,7 @@ defmodule LiveViewTodoWeb.PageLiveTest do
 end
 ```
 
-and delete the `test/live_view_todo_web/controller/page_controller_test.exs` file.
+and delete the `test/live_view_todo_web/controllers/page_controller_test.exs` file.
 
 
 Now when you re-run the tests:
